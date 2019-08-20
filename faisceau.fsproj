@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="src\Helpers.fs" />
+    <Compile Include="src\Generics.fs" />
+    <Compile Include="src\Types.fs" />
+    <Compile Include="src\Matrix.fs" />
+    <Compile Include="src\Chain.fs" />
+    <Compile Include="src\Simplex.fs" />
+    <Compile Include="src\Sheaf.fs" />
+    <Compile Include="src\Plot.fs" />
+    <Compile Include="test\RandomTests.fs" />
+    <Compile Include="test\SpecificTests.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FsCheck" Version="2.14.0" />
+    <PackageReference Include="XPlot.Plotly" Version="2.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="4.7.0" />
+  </ItemGroup>
+</Project>
