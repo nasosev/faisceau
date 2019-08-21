@@ -2,7 +2,7 @@
 [<AutoOpen>]
 module Types
 
-/// Nonnegative integer type
+/// Nonnegative integer type.
 type Nat =
     | Nat of int
     static member Zero = Nat 0
@@ -19,26 +19,6 @@ type Label =
     member __.PrettyPrinter : string =
         let (Label s) = __
         string s
-
-/// Simplex type. Module: `Simplex`.
-[<StructuredFormatDisplayAttribute("{PrettyPrinter}")>]
-type Simplex =
-    | Simplex of Set<Label>
-    member __.PrettyPrinter : string =
-        let (Simplex s) = __
-        s
-        |> Set.toList
-        |> string
-
-/// Simplicial complex type. Must satisfy complex relation (i.e. equal its powerset). Module: `Simplex`.
-[<StructuredFormatDisplayAttribute("{PrettyPrinter}")>]
-type Complex =
-    | Complex of Set<Simplex>
-    member __.PrettyPrinter : string =
-        let (Complex c) = __
-        c
-        |> Set.toList
-        |> string
 
 /// Matrix type over the binary field F2 (represented by `bool` with addition as `<>` and multiplication as `&&`). Represents vectors, matrices, vector spaces. Module: `Matrix`.
 [<StructuredFormatDisplayAttribute("{PrettyPrinter}")>]
@@ -187,6 +167,26 @@ type Chain =
         Array.map ((antiDiagonal an bn) >> (Array.fold (fun acc (i, j) -> acc +! a'.[i] *! b'.[j]) emptyMatrix)) [| 0..max an bn |]
         |> Array.toSeq
         |> Chain
+
+/// Simplex type. Module: `Simplex`.
+[<StructuredFormatDisplayAttribute("{PrettyPrinter}")>]
+type Simplex =
+    | Simplex of Set<Label>
+    member __.PrettyPrinter : string =
+        let (Simplex s) = __
+        s
+        |> Set.toList
+        |> string
+
+/// Simplicial complex type. Must satisfy complex relation (i.e. equal its powerset). Module: `Simplex`.
+[<StructuredFormatDisplayAttribute("{PrettyPrinter}")>]
+type Complex =
+    | Complex of Set<Simplex>
+    member __.PrettyPrinter : string =
+        let (Complex c) = __
+        c
+        |> Set.toList
+        |> string
 
 /// Sheaf. Module: `Sheaf`.
 type Sheaf = Sheaf of Map<Simplex * Simplex, Matrix>

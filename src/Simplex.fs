@@ -7,9 +7,12 @@ open Generics
 /// The empty simplex.
 let Empty = set [] |> Simplex
 
+/// The empty complex.
+let EmptyComplex = set [ Empty ] |> Complex
+
 /// Computes the topological closure of a set of simplices.
-let closure (ss : Set<Simplex>) : Complex =
-    ss
+let closure (sims : Set<Simplex>) : Complex =
+    sims + set [ Empty ]
     |> Set.map (fun (Simplex s) -> Helpers.powerset s)
     |> Set.unionMany
     |> Set.map Simplex
@@ -22,7 +25,7 @@ let complex (input : List<List<int>>) : Complex =
     |> closure
 
 /// Returns the top dimensional simplices of a complex.
-let toplexify (Complex c) : Set<Simplex> =
+let facets (Complex c) : Set<Simplex> =
     let nonToplexes =
         set [ for Simplex simplex in c do
                   for Simplex simplex2 in c do
@@ -30,13 +33,22 @@ let toplexify (Complex c) : Set<Simplex> =
         |> Set.map Simplex
     c - nonToplexes
 
+/// Topological boundary.
+let boundary (com : Complex) =
+    let simplexBoundary (Simplex sim) = sim |> Set.map (fun v -> sim - set [ v ] |> Simplex)
+    com
+    |> facets
+    |> Set.map simplexBoundary
+    |> Set.fold Helpers.symmetricDifference (set [ Empty ])
+    |> closure
+
 /// Computes the boundary matrix associated to two lists of simplices.
 let boundaryMatrix (rows : List<Simplex>) (cols : List<Simplex>) : Matrix =
     let boundary r c = (rows.[r], cols.[c]) ||> fun (Simplex x) (Simplex y) -> Set.isSubset x y
     Array2D.init rows.Length cols.Length boundary |> Matrix
 
 /// Computes the order (i.e. dimension) of a simplex.
-let order (Simplex s) : int = Set.count s - 1
+let order (Simplex x) : int = Set.count x - 1
 
 /// Dimension of a complex.
 let dim (Complex c) : int =
@@ -44,8 +56,15 @@ let dim (Complex c) : int =
     |> Set.map order
     |> Seq.max
 
-let size (Complex c) : Nat = Set.count c |> Nat
-let count (xs : Set<Simplex>) : Nat = Set.count xs |> Nat
+let size (Complex c) : Nat =
+    c
+    |> Set.count
+    |> Nat
+
+let count (sims : Set<Simplex>) : Nat =
+    sims
+    |> Set.count
+    |> Nat
 
 /// k-skeleton of a complex.
 let skeleton (k : int) (Complex c) : Set<Simplex> = c |> Set.filter (fun s -> k = order s)
@@ -82,7 +101,6 @@ let boundaryChain (com : Complex) : Chain =
     |> reducedBoundaryChain
 
 // TODO
-let boundary (com : Complex) = raise (System.NotImplementedException())
 let star (com : Complex) = raise (System.NotImplementedException())
 let flag (com : Complex) = raise (System.NotImplementedException())
 let cone (com : Complex) = raise (System.NotImplementedException())

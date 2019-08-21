@@ -66,38 +66,35 @@ type SimplexTests =
         let (Complex c) = Simplex.closure xs
         Complex c = Simplex.closure c
 
-    static member ``closure of toplex is identity`` (xs : Set<Simplex>) : Property =
-        Simplex.count xs <> Nat.Zero ==> lazy
-            let com = Simplex.closure xs
-            com = (com
-                   |> Simplex.toplexify
-                   |> Simplex.closure)
+    static member ``closure of toplex is identity`` (xs : Set<Simplex>) : bool =
+        let com = Simplex.closure xs
+        com = (com
+               |> Simplex.facets
+               |> Simplex.closure)
 
-    static member ``euler characteristic of chain and homology coincide`` (xs : Set<Simplex>) : Property =
-        Simplex.count xs <> Nat.Zero ==> lazy
-            let com = xs |> Simplex.closure
-            let chain = com |> Simplex.boundaryChain
-            let homology = chain |> Chain.homology
-            Chain.euler homology = Chain.euler chain
+    static member ``euler characteristic of chain and homology coincide`` (xs : Set<Simplex>) : bool =
+        let com = xs |> Simplex.closure
+        let chain = com |> Simplex.boundaryChain
+        let homology = chain |> Chain.homology
+        Chain.euler homology = Chain.euler chain
 
-    static member ``betti is dimension of homology`` (xs : Set<Simplex>) : Property =
-        Simplex.count xs > Nat.One ==> lazy
-            let com = xs |> Simplex.closure
+    static member ``betti is dimension of homology`` (xs : Set<Simplex>) : bool =
+        let com = xs |> Simplex.closure
 
-            let betti =
-                com
-                |> Simplex.boundaryChain
-                |> Chain.betti
-                |> List.ofSeq
+        let betti =
+            com
+            |> Simplex.boundaryChain
+            |> Chain.betti
+            |> List.ofSeq
 
-            let homologyDims =
-                com
-                |> Simplex.boundaryChain
-                |> Chain.homology
-                |> Chain.dim
-                |> List.ofSeq
+        let homologyDims =
+            com
+            |> Simplex.boundaryChain
+            |> Chain.homology
+            |> Chain.dim
+            |> List.ofSeq
 
-            betti = homologyDims
+        betti = homologyDims
 
     static member ``bettis exceeds reduced bettis by one in degree zero and coincide elsewhere`` (xs : Set<Simplex>) : Property =
         Simplex.count xs > Nat.One ==> lazy
@@ -117,7 +114,16 @@ type SimplexTests =
 
             (List.head betti = Nat.One + List.head reducedBetti) && (List.tail betti = List.tail reducedBetti)
 
-let testAll() : unit =
-    let config = { Config.Default with EndSize = 25 }
+    static member ``boundary is nilpotent`` (xs : Set<Simplex>) =
+        Simplex.EmptyComplex = (xs
+                                |> Simplex.closure
+                                |> Simplex.boundary
+                                |> Simplex.boundary)
+
+// type SheafTests =
+//     static member ``cohomology of constant sheaf and complex coincide`` = ()
+let testAll (endSize : int) : unit =
+    let config = { Config.Default with EndSize = endSize }
     Check.All<MatrixTests>(config)
     Check.All<SimplexTests>(config)
+// Check.All<SheafTests>(config)

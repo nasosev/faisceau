@@ -1,4 +1,4 @@
-﻿/// This module contains specific unit tests.
+/// This module contains specific unit tests.
 [<RequireQualifiedAccess>]
 module SpecificTests
 
@@ -18,6 +18,10 @@ let nat = List.map Nat
 
 type SimplexSpecificTests =
 
+    static member ``relative homology of ball mod boundary is reduced homology of sphere``() : bool =
+        let com = [ [ 1..8 ] ] |> Simplex.complex
+        (betti com = nat [ 1; 0; 0; 0; 0; 0; 0; 0 ]) && (relBetti (com, Simplex.boundary com) = nat [ 0; 0; 0; 0; 0; 0; 0; 1 ])
+
     static member ``relative homology of annulus mod boundary, half``() : bool =
         let com =
             [ [ 1; 2; 4 ]
@@ -28,21 +32,12 @@ type SimplexSpecificTests =
               [ 1; 4; 6 ] ]
             |> Simplex.complex
 
-        let boundary =
-            [ [ 1; 2 ]
-              [ 1; 3 ]
-              [ 2; 3 ]
-              [ 4; 5 ]
-              [ 5; 6 ]
-              [ 4; 6 ] ]
-            |> Simplex.complex
-
         let half =
             [ [ 1; 2; 4 ]
               [ 2; 4; 5 ] ]
             |> Simplex.complex
 
-        (betti com = nat [ 1; 1; 0 ]) && (relBetti (com, boundary) = nat [ 0; 1; 1 ]) && (relBetti (com, half) = nat [ 0; 1; 0 ])
+        (betti com = nat [ 1; 1; 0 ]) && (relBetti (com, Simplex.boundary com) = nat [ 0; 1; 1 ]) && (relBetti (com, half) = nat [ 0; 1; 0 ])
 
     // http://page.math.tu-berlin.de/~lutz/stellar/library_of_triangulations/poincare
     static member ``smallest known triangulation of the Poincaré homology 3-sphere with 16 vertices and 90 facets``() : bool =
@@ -794,6 +789,6 @@ type SimplexSpecificTests =
             |> Simplex.complex
         betti com = nat [ 1; 0; 1; 1; 0; 1 ]
 
-let testAll()  : unit =
+let testAll() : unit =
     let config = { Config.Default with MaxTest = 1 }
     Check.All<SimplexSpecificTests>(config)

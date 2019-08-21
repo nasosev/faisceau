@@ -71,7 +71,7 @@ let complexPlot (complex : Complex) (coordMap : Map<Label, int * int>) : PlotlyC
         c
         |> Set.filter (fun simplex -> 1 < Simplex.order simplex)
         |> Complex
-        |> Simplex.toplexify
+        |> Simplex.facets
         |> Set.toList
 
     let triangleShapes color (triangles : List<Simplex>) =
