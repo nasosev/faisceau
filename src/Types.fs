@@ -172,24 +172,45 @@ type Chain =
 [<StructuredFormatDisplayAttribute("{PrettyPrinter}")>]
 type Simplex =
     | Simplex of Set<Label>
+
     member __.PrettyPrinter : string =
         let (Simplex s) = __
         s
         |> Set.toList
         |> string
 
+    // Proper inclusion.
+    static member (<.) (Simplex x, Simplex y) : bool = Set.isProperSubset x y
+    // Inclusion.
+    static member (<=.) (Simplex x, Simplex y) : bool = Set.isSubset x y
+
 /// Simplicial complex type. Must satisfy complex relation (i.e. equal its powerset). Module: `Simplex`.
 [<StructuredFormatDisplayAttribute("{PrettyPrinter}")>]
 type Complex =
     | Complex of Set<Simplex>
+
     member __.PrettyPrinter : string =
         let (Complex c) = __
         c
         |> Set.toList
         |> string
 
+    // Proper inclusion.
+    static member (<.) (Complex c, Complex d) : bool = Set.isProperSubset c d
+    // Inclusion.
+    static member (<=.) (Complex c, Complex d) : bool = Set.isSubset c d
+
 /// Sheaf. Module: `Sheaf`.
-type Sheaf = Sheaf of Map<Simplex * Simplex, Matrix>
+type Sheaf =
+    | Sheaf of Map<Simplex * Simplex, Matrix>
+    // Direct sum.
+    static member (+) (Sheaf a, Sheaf b) : Sheaf = raise (System.NotImplementedException())
+    // Tensor product.
+    static member (*) (Sheaf a, Sheaf b) : Sheaf = raise (System.NotImplementedException())
+    // Pullback.
+    static member (<!) (f, Sheaf b) : Sheaf = raise (System.NotImplementedException())
+    // Pushforward.
+    static member (!>) (f, Sheaf b) : Sheaf = raise (System.NotImplementedException())
 
 /// Cosheaf. Module: `Sheaf`.
 type Cosheaf = Cosheaf of Sheaf

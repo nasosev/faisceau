@@ -29,6 +29,8 @@ Look at the Jupyter Notebooks in the [examples](examples) folder. (TODO)
 
 [3] CURRY, Justin; GHRIST, Robert; NANDA, Vidit. Discrete Morse theory for computing cellular sheaf cohomology. _Foundations of Computational Mathematics_, 2016, 16.4: 875-897. <https://arxiv.org/abs/1312.6454v2>
 
+[4] HANSEN, Jakob; GHRIST, Robert. Toward a Spectral Theory of Cellular Sheaves. _arXiv preprint arXiv:1808.01513_, 2018. <https://arxiv.org/abs/1808.01513>
+
 ---
 
 ## TODO
@@ -47,7 +49,8 @@ Look at the Jupyter Notebooks in the [examples](examples) folder. (TODO)
 
 ### Optimisations
 
-- Improve performance.
+- Implement 'Scythe' algorithm from Curry/Ghrist/Nanda.
+- Improve performance overall.
 
 ---
 

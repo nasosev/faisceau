@@ -66,7 +66,7 @@ type SimplexTests =
         let (Complex c) = Simplex.closure xs
         Complex c = Simplex.closure c
 
-    static member ``closure of toplex is identity`` (xs : Set<Simplex>) : bool =
+    static member ``closure of facets is identity`` (xs : Set<Simplex>) : bool =
         let com = Simplex.closure xs
         com = (com
                |> Simplex.facets

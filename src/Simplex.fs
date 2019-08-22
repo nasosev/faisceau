@@ -26,25 +26,28 @@ let complex (input : List<List<int>>) : Complex =
 
 /// Returns the top dimensional simplices of a complex.
 let facets (Complex c) : Set<Simplex> =
-    let nonToplexes =
-        set [ for Simplex simplex in c do
-                  for Simplex simplex2 in c do
-                      if Set.isProperSubset simplex simplex2 then yield simplex ]
-        |> Set.map Simplex
-    c - nonToplexes
+    c - set [ for x in c do
+                  for y in c do
+                      if x <. y then yield x ]
 
 /// Topological boundary.
 let boundary (com : Complex) =
-    let simplexBoundary (Simplex sim) = sim |> Set.map (fun v -> sim - set [ v ] |> Simplex)
+    let simplexBoundary (Simplex x) = x |> Set.map (fun v -> x - set [ v ] |> Simplex)
     com
     |> facets
     |> Set.map simplexBoundary
     |> Set.fold Helpers.symmetricDifference (set [ Empty ])
     |> closure
 
+/// The star of a simplex in a complex.
+let star (Complex c, x : Simplex) =
+    c
+    |> Set.filter (fun y -> x <=. y)
+    |> Complex
+
 /// Computes the boundary matrix associated to two lists of simplices.
 let boundaryMatrix (rows : List<Simplex>) (cols : List<Simplex>) : Matrix =
-    let boundary r c = (rows.[r], cols.[c]) ||> fun (Simplex x) (Simplex y) -> Set.isSubset x y
+    let boundary r c = (rows.[r], cols.[c]) ||> (<=.)
     Array2D.init rows.Length cols.Length boundary |> Matrix
 
 /// Computes the order (i.e. dimension) of a simplex.
@@ -101,7 +104,6 @@ let boundaryChain (com : Complex) : Chain =
     |> reducedBoundaryChain
 
 // TODO
-let star (com : Complex) = raise (System.NotImplementedException())
 let flag (com : Complex) = raise (System.NotImplementedException())
 let cone (com : Complex) = raise (System.NotImplementedException())
 let alexandrov (com : Complex) = raise (System.NotImplementedException())
