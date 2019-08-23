@@ -3,13 +3,16 @@
 module Matrix
 
 /// Convenience constructor to produce a matrix.
-let matrix (input : List<List<int>>) : Matrix =
+let make (input : List<List<int>>) : Matrix =
     if (Helpers.listNumDistinctListLengths input) <> 1 then invalidOp "Cannot make matrix from no row vectors or row vectors of unequal dimensions."
     let converter r c =
         match input.[r].[c] with
         | 1 -> true
         | _ -> false
     Array2D.init input.Length input.[0].Length converter |> Matrix
+
+/// Row dimension.
+let transpose (mat : Matrix) : Matrix = -mat
 
 /// Row dimension.
 let dimRow (Matrix m) : Nat = Array2D.length1 m |> Nat

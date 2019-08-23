@@ -21,9 +21,6 @@ let make (input : List<List<int>>) : Complex =
     |> set
     |> closure
 
-/// Complex map. Returns a set of simplices.
-let map (f : Simplex -> Simplex) (Complex c) : Set<Simplex> = Set.map f c
-
 /// Returns the top-dimensional simplices of a complex.
 let facets (Complex c) : Set<Simplex> =
     c - set [ for x in c do

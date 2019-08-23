@@ -25,11 +25,26 @@ let dim (Sheaf f) : int =
     |> Seq.map Simplex.dim
     |> Seq.max
 
+/// Size.
+let size (Sheaf f) : Nat =
+    f
+    |> Map.count
+    |> Nat
+
 /// k-Skeleton.
 let skeleton (k : int) (Sheaf f) : Sheaf =
     f
     |> Map.filter (fun (_, x) _ -> Simplex.dim x = k)
     |> Sheaf
+
+/// Size of the k-skeleton of the underlying complex. TODO: refactor.
+let complexSkeletonSize (k : int) (Sheaf f) =
+    (List.map (fst >> (fun (x, y) -> [ x; y ])) (f |> Map.toList))
+    |> List.collect id
+    |> Set.ofList
+    |> Set.filter (fun x -> k = Simplex.dim x)
+    |> Set.count
+    |> Nat
 
 /// Skeletal decomposition.
 let skelatalDecomposition (sheaf : Sheaf) : Map<int, Sheaf> = skelatalDecomposition dim skeleton sheaf
@@ -100,14 +115,17 @@ let boundaryMatrix (k : int) (sheaf : Sheaf) : Matrix =
 
 /// Creates the boundary chain of a sheaf.
 let boundaryChain (sheaf : Sheaf) : Chain =
-    [ 0..dim sheaf ]
+    let d = dim sheaf
+    let zero = Matrix.zero Nat.Zero (complexSkeletonSize d sheaf)
+    [ 0..d - 1 ]
     |> List.map (fun k -> boundaryMatrix k sheaf)
     |> List.rev
+    |> fun l -> zero :: l
     |> List.toSeq
     |> Chain
 
 /// Outputs the unreduced cobetti numbers of a sheaf.
-let unreducedCobetti (sheaf : Sheaf) : List<Nat> =
+let cobetti (sheaf : Sheaf) : List<Nat> =
     sheaf
     |> boundaryChain
     |> Chain.betti
@@ -124,4 +142,5 @@ let cohomology (sheaf : Sheaf) : Chain =
     let (Chain a) = homology
     a
     |> Seq.rev
+    |> Seq.map (~-)
     |> Chain

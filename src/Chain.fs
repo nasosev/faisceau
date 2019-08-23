@@ -13,9 +13,6 @@ let make (input : seq<Matrix>) : Chain =
     // If no exception occurs, then give back a chain.
     Chain input
 
-/// Chain map.
-let map (f : Matrix -> Matrix) (Chain c) : Chain = Seq.map f c |> Chain
-
 /// Dimensions of chain.
 let dim (Chain h) : seq<Nat> = h |> Seq.map Matrix.dimCol
 

@@ -14,7 +14,7 @@ For simplicity, coefficients are taken in the binary field F2.
 
 ### Usage
 
-Look at the Jupyter Notebooks in the [examples](examples) folder. (TODO)
+Look at the Jupyter Notebooks in the [examples](examples) folder.
 
 ### Dependencies
 

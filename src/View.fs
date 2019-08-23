@@ -114,6 +114,6 @@ let complexRng (com : Complex) : PlotlyChart =
     let rng = System.Random()
     let next() = rng.NextDouble() * 100.0 |> int
 
-    let points =
+    let randomCoords =
         [ for i in Nat.Zero..(Complex.skeletonSize 0 com - Nat.One) -> next(), next() ]
-    complex com points
+    complex com randomCoords

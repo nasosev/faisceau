@@ -152,6 +152,9 @@ type Chain =
         let (Chain m) = __
         (List.ofSeq m).[int i]
 
+    /// Mapper.
+    static member inline map (f : Matrix -> ^a) (Chain h) : ^a seq = Seq.map f h
+
     // Chain product, tensor product of chains. Can be used on the (unreduced) homology of simplicial complexes to obtain the homology of their cartesian product (Kunneth formula).
     static member ( *! ) (Chain a, Chain b) : Chain =
         let antiDiagonal n m k =
@@ -195,6 +198,9 @@ type Complex =
         |> Set.toList
         |> List.map string
         |> String.concat " ; "
+
+    /// Mapper.
+    static member inline map (f : Simplex -> ^a) (Complex c) : Set< ^a > = Set.map f c
 
     // Proper inclusion.
     static member (<.) (Complex c, Complex d) : bool = Set.isProperSubset c d
