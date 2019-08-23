@@ -6,15 +6,16 @@
 
 ## ABOUT
 
-Faisceau is an experimental toolkit for computing with cellular sheaves in F#, inspired by Michael Robinson's [PySheaf](https://github.com/kb1dds/pysheaf).
+_faisceau_ is an experimental toolkit for computing with cellular sheaves in F#, inspired by Michael Robinson's [PySheaf](https://github.com/kb1dds/pysheaf).
 
 We are presently in very early development and most of the intended functionality is not implemented.
-
-For simplicity, coefficients are taken in the binary field F2.
 
 ### Usage
 
 Look at the Jupyter Notebooks in the [examples](examples) folder.
+
+For simplicity and performance, _faisceau_ works with coefficients in the binary field F2.
+(The downside is that we cannot detect orientation.)
 
 ### Dependencies
 
@@ -41,7 +42,7 @@ Look at the Jupyter Notebooks in the [examples](examples) folder.
 
 ### Features
 
-- Many examples.
+- Many more examples.
 - Cosheaves.
 - Local cohomology.
 - Six operations.
@@ -56,4 +57,4 @@ Look at the Jupyter Notebooks in the [examples](examples) folder.
 
 ## LICENSE
 
-[MIT License](../master/LICENSE). Nasos Evangelou-Oost, 2019.
+[MIT License](../master/LICENSE). Copyright (c) 2019 Nasos Evangelou-Oost.
