@@ -5,7 +5,7 @@
 /// 2. Use `Labels` in scatter/shapes for hover info.
 ///
 [<RequireQualifiedAccess>]
-module Plot
+module View
 
 open XPlot.Plotly
 
@@ -35,7 +35,14 @@ let createTriangle color (coords : List<int * int>) : Shape =
     Shape(``type`` = "path", path = createSvgPath coords, fillcolor = color, line = Line(width = 0))
 
 /// Plots simplicial complex with coordinates.
-let complexPlot (complex : Complex) (coordMap : Map<Label, int * int>) : PlotlyChart =
+let complex (com : Complex) (coords : List<int * int>) : PlotlyChart =
+    let labels = [ Nat.Zero..(Complex.skeletonSize 0 com - Nat.One) ] |> List.map (fun (Nat n) -> Label n)
+
+    let coordMap =
+        (labels, coords)
+        ||> List.zip
+        |> Map.ofList
+
     let simplicesToCoords (simplices : List<Simplex>) =
         simplices
         |> List.map (fun (Simplex s) ->
@@ -45,8 +52,8 @@ let complexPlot (complex : Complex) (coordMap : Map<Label, int * int>) : PlotlyC
 
     // Nodes.
     let nodes =
-        complex
-        |> Simplex.skeleton 0
+        com
+        |> Complex.skeleton 0
         |> Set.toList
 
     let nodeCoords =
@@ -58,8 +65,8 @@ let complexPlot (complex : Complex) (coordMap : Map<Label, int * int>) : PlotlyC
 
     // Edges.
     let edges =
-        complex
-        |> Simplex.skeleton 1
+        com
+        |> Complex.skeleton 1
         |> Set.toList
 
     let edgesCoords = edges |> simplicesToCoords
@@ -67,11 +74,11 @@ let complexPlot (complex : Complex) (coordMap : Map<Label, int * int>) : PlotlyC
 
     // Higher simplices.
     let higherSimplices =
-        let (Complex c) = complex
+        let (Complex c) = com
         c
-        |> Set.filter (fun simplex -> 1 < Simplex.order simplex)
+        |> Set.filter (fun simplex -> 1 < Simplex.dim simplex)
         |> Complex
-        |> Simplex.facets
+        |> Complex.facets
         |> Set.toList
 
     let triangleShapes color (triangles : List<Simplex>) =
@@ -97,29 +104,16 @@ let complexPlot (complex : Complex) (coordMap : Map<Label, int * int>) : PlotlyC
 
     // Consolidate and plot.
     let shapes = edgeShapes @ triangleShapes
-    let layout = Layout(shapes = shapes, title = string complex)
+    let layout = Layout(shapes = shapes, title = string com)
     seq [ nodeChart ]
     |> Chart.Plot
     |> Chart.WithLayout layout
 
 /// Plot simplicial complex with random coordinates.
-let complexPlotRng (complex : Complex) : PlotlyChart =
-    let nodeLabels =
-        complex
-        |> Simplex.skeleton 0
-        |> Set.toList
-        |> List.map (fun (Simplex s) -> Set.toList s)
-        |> List.collect id
-
+let complexRng (com : Complex) : PlotlyChart =
     let rng = System.Random()
     let next() = rng.NextDouble() * 100.0 |> int
 
     let points =
-        [ for i in 1..List.length nodeLabels -> next(), next() ]
-
-    let coords =
-        (nodeLabels, points)
-        ||> List.zip
-        |> Map.ofList
-
-    complexPlot complex coords
+        [ for i in Nat.Zero..(Complex.skeletonSize 0 com - Nat.One) -> next(), next() ]
+    complex com points

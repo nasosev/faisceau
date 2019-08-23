@@ -5,12 +5,12 @@ module SpecificTests
 open FsCheck
 
 let betti =
-    Simplex.boundaryChain
+    Complex.boundaryChain
     >> Chain.betti
     >> Seq.toList
 
 let relBetti =
-    Simplex.relativeBoundaryChain
+    Complex.relativeBoundaryChain
     >> Chain.betti
     >> Seq.toList
 
@@ -19,8 +19,8 @@ let nat = List.map Nat
 type SimplexSpecificTests =
 
     static member ``relative homology of ball mod boundary is reduced homology of sphere``() : bool =
-        let com = [ [ 1..8 ] ] |> Simplex.complex
-        (betti com = nat [ 1; 0; 0; 0; 0; 0; 0; 0 ]) && (relBetti (com, Simplex.boundary com) = nat [ 0; 0; 0; 0; 0; 0; 0; 1 ])
+        let com = [ [ 1..8 ] ] |> Complex.make
+        (betti com = nat [ 1; 0; 0; 0; 0; 0; 0; 0 ]) && (relBetti (com, Complex.boundary com) = nat [ 0; 0; 0; 0; 0; 0; 0; 1 ])
 
     static member ``relative homology of annulus mod boundary, half``() : bool =
         let com =
@@ -30,14 +30,14 @@ type SimplexSpecificTests =
               [ 3; 5; 6 ]
               [ 1; 3; 6 ]
               [ 1; 4; 6 ] ]
-            |> Simplex.complex
+            |> Complex.make
 
         let half =
             [ [ 1; 2; 4 ]
               [ 2; 4; 5 ] ]
-            |> Simplex.complex
+            |> Complex.make
 
-        (betti com = nat [ 1; 1; 0 ]) && (relBetti (com, Simplex.boundary com) = nat [ 0; 1; 1 ]) && (relBetti (com, half) = nat [ 0; 1; 0 ])
+        (betti com = nat [ 1; 1; 0 ]) && (relBetti (com, Complex.boundary com) = nat [ 0; 1; 1 ]) && (relBetti (com, half) = nat [ 0; 1; 0 ])
 
     // http://page.math.tu-berlin.de/~lutz/stellar/library_of_triangulations/poincare
     static member ``smallest known triangulation of the Poincaré homology 3-sphere with 16 vertices and 90 facets``() : bool =
@@ -132,7 +132,7 @@ type SimplexSpecificTests =
               [ 11; 13; 14; 16 ]
               [ 12; 13; 14; 15 ]
               [ 13; 14; 15; 16 ] ]
-            |> Simplex.complex
+            |> Complex.make
         betti com = nat [ 1; 0; 0; 1 ]
 
     // http://page.math.tu-berlin.de/~lutz/stellar/library_of_triangulations/CP2
@@ -174,7 +174,7 @@ type SimplexSpecificTests =
               [ 3; 5; 6; 7; 9 ]
               [ 4; 5; 6; 7; 8 ]
               [ 4; 5; 7; 8; 9 ] ]
-            |> Simplex.complex
+            |> Complex.make
         betti com = nat [ 1; 0; 1; 0; 1 ]
 
     // http://page.math.tu-berlin.de/~lutz/stellar/library_of_triangulations/RP4
@@ -330,7 +330,7 @@ type SimplexSpecificTests =
               [ 7; 9; 10; 13; 14 ]
               [ 8; 9; 10; 11; 14 ]
               [ 8; 9; 10; 11; 15 ] ]
-            |> Simplex.complex
+            |> Complex.make
         betti com = nat [ 1; 1; 1; 1; 1 ]
 
     // http://page.math.tu-berlin.de/~lutz/stellar/library_of_triangulations/K3_16
@@ -624,7 +624,7 @@ type SimplexSpecificTests =
               [ 8; 13; 14; 15; 16 ]
               [ 9; 10; 11; 12; 16 ]
               [ 10; 11; 12; 15; 16 ] ]
-            |> Simplex.complex
+            |> Complex.make
         betti com = nat [ 1; 0; 22; 0; 1 ]
 
     // http://page.math.tu-berlin.de/~lutz/stellar/library_of_triangulations/SU2_SO3
@@ -786,7 +786,7 @@ type SimplexSpecificTests =
               [ 5; 6; 7; 8; 11; 13 ]
               [ 5; 6; 7; 9; 10; 13 ]
               [ 6; 7; 8; 9; 10; 13 ] ]
-            |> Simplex.complex
+            |> Complex.make
         betti com = nat [ 1; 0; 1; 1; 0; 1 ]
 
 let testAll() : unit =

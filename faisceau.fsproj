@@ -9,8 +9,9 @@
     <Compile Include="src\Matrix.fs" />
     <Compile Include="src\Chain.fs" />
     <Compile Include="src\Simplex.fs" />
+    <Compile Include="src\Complex.fs" />
     <Compile Include="src\Sheaf.fs" />
-    <Compile Include="src\Plot.fs" />
+    <Compile Include="src\View.fs" />
     <Compile Include="test\RandomTests.fs" />
     <Compile Include="test\SpecificTests.fs" />
   </ItemGroup>

@@ -20,7 +20,7 @@ type Label =
         let (Label s) = __
         string s
 
-/// Matrix type over the binary field F2 (represented by `bool` with addition as `<>` and multiplication as `&&`). Represents vectors, matrices, vector spaces. Module: `Matrix`.
+/// Matrix type over the binary field F2 (represented by `bool` with addition as `<>` and multiplication as `&&`). Represents vectors, matrices, vector spaces.
 [<StructuredFormatDisplayAttribute("{PrettyPrinter}")>]
 type Matrix =
     | Matrix of bool [,]
@@ -134,7 +134,7 @@ type Matrix =
                 result.[i - 1, j - 1] <- m1.[k1, l1] && m2.[k2, l2]
         result |> Matrix
 
-/// Chain complex. Module: `Chain`.
+/// Chain complex.
 [<StructuredFormatDisplayAttribute("{PrettyPrinter}")>]
 type Chain =
     | Chain of seq<Matrix>
@@ -168,7 +168,7 @@ type Chain =
         |> Array.toSeq
         |> Chain
 
-/// Simplex type. Module: `Simplex`.
+/// Simplex type.
 [<StructuredFormatDisplayAttribute("{PrettyPrinter}")>]
 type Simplex =
     | Simplex of Set<Label>
@@ -184,7 +184,7 @@ type Simplex =
     // Inclusion.
     static member (<=.) (Simplex x, Simplex y) : bool = Set.isSubset x y
 
-/// Simplicial complex type. Must satisfy complex relation (i.e. equal its powerset). Module: `Simplex`.
+/// Simplicial complex type. Must satisfy complex relation (i.e. equal its powerset).
 [<StructuredFormatDisplayAttribute("{PrettyPrinter}")>]
 type Complex =
     | Complex of Set<Simplex>
@@ -193,14 +193,15 @@ type Complex =
         let (Complex c) = __
         c
         |> Set.toList
-        |> string
+        |> List.map string
+        |> String.concat " ; "
 
     // Proper inclusion.
     static member (<.) (Complex c, Complex d) : bool = Set.isProperSubset c d
     // Inclusion.
     static member (<=.) (Complex c, Complex d) : bool = Set.isSubset c d
 
-/// Sheaf. Module: `Sheaf`.
+/// Sheaf.
 type Sheaf =
     | Sheaf of Map<Simplex * Simplex, Matrix>
     // Direct sum.
@@ -212,5 +213,5 @@ type Sheaf =
     // Pushforward.
     static member (!>) (f, Sheaf b) : Sheaf = raise (System.NotImplementedException())
 
-/// Cosheaf. Module: `Sheaf`.
+/// Cosheaf.
 type Cosheaf = Cosheaf of Sheaf

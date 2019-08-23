@@ -5,7 +5,7 @@ module Sheaf
 open Generics
 
 /// Convenience constructor to produce a sheaf.
-let sheaf (input : List<List<int> * List<int> * Matrix>) : Sheaf =
+let make (input : List<List<int> * List<int> * Matrix>) : Sheaf =
     let intListtoSimplex x =
         x
         |> List.map Label
@@ -22,13 +22,13 @@ let dim (Sheaf f) : int =
     |> Map.toSeq
     |> Seq.map fst
     |> Seq.collect (fun (x, y) -> [ x; y ])
-    |> Seq.map Simplex.order
+    |> Seq.map Simplex.dim
     |> Seq.max
 
 /// k-Skeleton.
 let skeleton (k : int) (Sheaf f) : Sheaf =
     f
-    |> Map.filter (fun (_, x) _ -> Simplex.order x = k)
+    |> Map.filter (fun (_, x) _ -> Simplex.dim x = k)
     |> Sheaf
 
 /// Skeletal decomposition.

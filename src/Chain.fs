@@ -3,7 +3,7 @@
 module Chain
 
 // Convenience constructor with checking.
-let chain (input : seq<Matrix>) : Chain =
+let make (input : seq<Matrix>) : Chain =
     // Try to multiply consecutive elements to see if an exception occurs.
     let a = input |> Seq.toArray
     try
@@ -12,6 +12,9 @@ let chain (input : seq<Matrix>) : Chain =
     with :? System.InvalidOperationException -> invalidOp "Cannot form a chain when boundary maps do not square to zero."
     // If no exception occurs, then give back a chain.
     Chain input
+
+/// Chain map.
+let map (f : Matrix -> Matrix) (Chain c) : Chain = Seq.map f c |> Chain
 
 /// Dimensions of chain.
 let dim (Chain h) : seq<Nat> = h |> Seq.map Matrix.dimCol

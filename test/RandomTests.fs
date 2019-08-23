@@ -63,33 +63,33 @@ type MatrixTests =
 type SimplexTests =
 
     static member ``closure is idempotent`` (xs : Set<Simplex>) : bool =
-        let (Complex c) = Simplex.closure xs
-        Complex c = Simplex.closure c
+        let (Complex c) = Complex.closure xs
+        Complex c = Complex.closure c
 
     static member ``closure of facets is identity`` (xs : Set<Simplex>) : bool =
-        let com = Simplex.closure xs
+        let com = Complex.closure xs
         com = (com
-               |> Simplex.facets
-               |> Simplex.closure)
+               |> Complex.facets
+               |> Complex.closure)
 
     static member ``euler characteristic of chain and homology coincide`` (xs : Set<Simplex>) : bool =
-        let com = xs |> Simplex.closure
-        let chain = com |> Simplex.boundaryChain
+        let com = xs |> Complex.closure
+        let chain = com |> Complex.boundaryChain
         let homology = chain |> Chain.homology
         Chain.euler homology = Chain.euler chain
 
     static member ``betti is dimension of homology`` (xs : Set<Simplex>) : bool =
-        let com = xs |> Simplex.closure
+        let com = xs |> Complex.closure
 
         let betti =
             com
-            |> Simplex.boundaryChain
+            |> Complex.boundaryChain
             |> Chain.betti
             |> List.ofSeq
 
         let homologyDims =
             com
-            |> Simplex.boundaryChain
+            |> Complex.boundaryChain
             |> Chain.homology
             |> Chain.dim
             |> List.ofSeq
@@ -97,28 +97,28 @@ type SimplexTests =
         betti = homologyDims
 
     static member ``bettis exceeds reduced bettis by one in degree zero and coincide elsewhere`` (xs : Set<Simplex>) : Property =
-        Simplex.count xs > Nat.One ==> lazy
-            let com = xs |> Simplex.closure
+        Set.count xs > 1 ==> lazy
+            let com = xs |> Complex.closure
 
             let betti =
                 com
-                |> Simplex.boundaryChain
+                |> Complex.boundaryChain
                 |> Chain.betti
                 |> List.ofSeq
 
             let reducedBetti =
                 com
-                |> Simplex.reducedBoundaryChain
+                |> Complex.reducedBoundaryChain
                 |> Chain.betti
                 |> List.ofSeq
 
             (List.head betti = Nat.One + List.head reducedBetti) && (List.tail betti = List.tail reducedBetti)
 
     static member ``boundary is nilpotent`` (xs : Set<Simplex>) =
-        Simplex.EmptyComplex = (xs
-                                |> Simplex.closure
-                                |> Simplex.boundary
-                                |> Simplex.boundary)
+        Complex.Empty = (xs
+                         |> Complex.closure
+                         |> Complex.boundary
+                         |> Complex.boundary)
 
 // type SheafTests =
 //     static member ``cohomology of constant sheaf and complex coincide`` = ()
