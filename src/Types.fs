@@ -171,6 +171,9 @@ type Chain =
         |> Array.toSeq
         |> Chain
 
+/// Type alias for cochain.
+type Cochain = Chain
+
 /// Simplex type.
 [<StructuredFormatDisplayAttribute("{PrettyPrinter}")>]
 type Simplex =
@@ -209,15 +212,15 @@ type Complex =
 
 /// Sheaf.
 type Sheaf =
-    | Sheaf of Map<Simplex * Simplex, Matrix>
+    | Sheaf of Complex * Map<Simplex * Simplex, Matrix>
     // Direct sum.
-    static member (+) (Sheaf a, Sheaf b) : Sheaf = raise (System.NotImplementedException())
+    static member (+) (a : Sheaf, b : Sheaf) : Sheaf = raise (System.NotImplementedException())
     // Tensor product.
-    static member (*) (Sheaf a, Sheaf b) : Sheaf = raise (System.NotImplementedException())
+    static member (*) (a : Sheaf, b : Sheaf) : Sheaf = raise (System.NotImplementedException())
     // Pullback.
-    static member (<!) (f, Sheaf b) : Sheaf = raise (System.NotImplementedException())
+    static member (<!) (f, a : Sheaf) : Sheaf = raise (System.NotImplementedException())
     // Pushforward.
-    static member (!>) (f, Sheaf b) : Sheaf = raise (System.NotImplementedException())
+    static member (!>) (f, a : Sheaf) : Sheaf = raise (System.NotImplementedException())
 
-/// Cosheaf.
-type Cosheaf = Cosheaf of Sheaf
+/// Type alias for cosheaf.
+type Cosheaf = Sheaf

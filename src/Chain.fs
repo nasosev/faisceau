@@ -1,4 +1,4 @@
-﻿/// This module contains functions related to the `Chain` type.
+﻿/// This module contains functions related to the `Chain` and `Cochain` types.
 [<RequireQualifiedAccess>]
 module Chain
 
@@ -13,43 +13,90 @@ let make (input : seq<Matrix>) : Chain =
     // If no exception occurs, then give back a chain.
     Chain input
 
+/// Length of a chain.
+let length (Chain a) : Nat = Seq.length a |> Nat
+
+/// Reverse a chain.
+let rev (Chain a) : Chain = Seq.rev a |> Chain
+
 /// Dimensions of chain.
-let dim (Chain h) : seq<Nat> = h |> Seq.map Matrix.dimCol
+let dim (Chain a) : seq<Nat> = a |> Seq.map Matrix.dimCol
 
 /// Row and columensions of chain.
-let dims (Chain h) : seq<Nat * Nat> = h |> Seq.map Matrix.dim
+let dims (Chain a) : seq<Nat * Nat> = a |> Seq.map Matrix.dim
 
 /// Rank sequence of chain.
-let rk (Chain h) : seq<Nat> = h |> Seq.map Matrix.rk
+let rk (Chain a) : seq<Nat> = a |> Seq.map Matrix.rk
 
 /// Euler characteristic.
-let euler (Chain h) : int = h |> Seq.fold (fun acc m -> (Matrix.dimCol m |> int) - acc) 0
+let euler (Chain a) : int = a |> Seq.fold (fun acc m -> (Matrix.dimCol m |> int) - acc) 0
+
+/// Append zero to the end of a chain.
+let private _augmentChain (Chain a) : Chain =
+    Seq.append a [ Seq.last a
+                   |> Matrix.dimCol
+                   |> fun r -> Matrix.zero r Nat.Zero ]
+    |> Chain
+
+/// Append zero to the end of a cochain.
+let private _augmentCochain (Chain a : Cochain) : Cochain =
+    Seq.append a [ Seq.last a
+                   |> Matrix.dimRow
+                   |> fun c -> Matrix.zero Nat.Zero c ]
+    |> Chain
+
+/// Chain homology.
+let private _chainHomology (Chain a) : Chain =
+    let k = a |> Seq.map Matrix.ker
+
+    let i =
+        a
+        |> Seq.map Matrix.im
+        |> Seq.tail
+    Seq.map2 Matrix.quotient k i |> Chain
+
+/// Chain betti.
+let private _chainBetti (Chain a) : seq<Nat> =
+    let k = a |> Seq.map Matrix.nul
+
+    let i =
+        a
+        |> Seq.map Matrix.rk
+        |> Seq.tail
+    Seq.map2 (-) k i
 
 /// Betti numbers.
-let betti (Chain h) : seq<Nat> =
-    if Seq.isEmpty h then seq []
+let betti (a : Cochain) : seq<Nat> =
+    if length a = Nat.Zero then seq []
     else
-        let nuls = h |> Seq.map Matrix.nul
-
-        let rks =
-            h
-            |> Seq.map Matrix.rk
-            |> Seq.tail
-            |> fun x -> Seq.append x [ Nat.Zero ]
-        Seq.map2 (-) nuls rks
+        a
+        |> _augmentChain
+        |> _chainBetti
 
 /// Homology.
-let homology (Chain h) : Chain =
-    if Seq.isEmpty h then Chain []
+let homology (a : Cochain) : Cochain =
+    if length a = Nat.Zero then Chain []
     else
-        let kers = h |> Seq.map Matrix.ker
+        a
+        |> _augmentChain
+        |> _chainHomology
 
-        let ims =
-            h
-            |> Seq.map Matrix.im
-            |> Seq.tail
-            |> fun x ->
-                Seq.append x [ Seq.last kers
-                               |> Matrix.dim
-                               ||> Matrix.zero ]
-        Seq.map2 Matrix.quotient kers ims |> Chain
+/// Cobetti numbers.
+let cobetti (a : Cochain) : seq<Nat> =
+    if length a = Nat.Zero then seq []
+    else
+        a
+        |> _augmentCochain
+        |> rev
+        |> _chainBetti
+        |> Seq.rev
+
+/// Cohomology.
+let cohomology (a : Cochain) : Cochain =
+    if length a = Nat.Zero then Chain []
+    else
+        a
+        |> _augmentCochain
+        |> rev
+        |> _chainHomology
+        |> rev

@@ -4,7 +4,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src\Helpers.fs" />
-    <Compile Include="src\Generics.fs" />
     <Compile Include="src\Types.fs" />
     <Compile Include="src\Matrix.fs" />
     <Compile Include="src\Chain.fs" />

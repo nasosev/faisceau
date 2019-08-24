@@ -120,10 +120,44 @@ type SimplexTests =
                          |> Complex.boundary
                          |> Complex.boundary)
 
-// type SheafTests =
-//     static member ``cohomology of constant sheaf and complex coincide`` = ()
+type SheafTests =
+
+    static member ``coboundary chain of constant sheaf is dual to boundary chain of complex`` (xs : Set<Simplex>) : bool =
+        let com = xs |> Complex.closure
+        let bc = com |> Complex.boundaryChain
+
+        let cbc =
+            com
+            |> Sheaf.constant
+            |> Sheaf.coboundaryCochain
+
+        let dcbc =
+            cbc
+            |> Chain.map ((~-))
+            |> Chain
+
+        let (Chain b) = bc
+        let (Chain c) = dcbc
+        Seq.toList b = Seq.toList c
+
+    static member ``cobetti and betti numbers of complex coincide`` (xs : Set<Simplex>) : bool =
+        let com = xs |> Complex.closure
+
+        let betti =
+            com
+            |> Complex.betti
+            |> Seq.toList
+
+        let cobetti =
+            com
+            |> Sheaf.constant
+            |> Sheaf.cobetti
+            |> Seq.toList
+
+        betti = cobetti
+
 let testAll (endSize : int) : unit =
     let config = { Config.Default with EndSize = endSize }
     Check.All<MatrixTests>(config)
     Check.All<SimplexTests>(config)
-// Check.All<SheafTests>(config)
+    Check.All<SheafTests>(config)

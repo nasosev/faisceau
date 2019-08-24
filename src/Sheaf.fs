@@ -2,145 +2,121 @@
 [<RequireQualifiedAccess>]
 module Sheaf
 
-open Generics
-
 /// Convenience constructor to produce a sheaf.
-let make (input : List<List<int> * List<int> * Matrix>) : Sheaf =
+let make (input : Complex * List<List<int> * List<int> * Matrix>) : Sheaf =
+    let com = fst input
+
     let intListtoSimplex x =
         x
         |> List.map Label
         |> Set.ofList
         |> Simplex
-    input
-    |> List.map (fun (k1, k2, value) -> (intListtoSimplex k1, intListtoSimplex k2), value)
-    |> Map.ofList
-    |> Sheaf
+
+    let maps =
+        input
+        |> snd
+        |> List.map (fun (k1, k2, value) -> (intListtoSimplex k1, intListtoSimplex k2), value)
+        |> Map.ofList
+
+    (com, maps) |> Sheaf
 
 /// Dimension.
-let dim (Sheaf f) : int =
-    f
-    |> Map.toSeq
-    |> Seq.map fst
-    |> Seq.collect (fun (x, y) -> [ x; y ])
-    |> Seq.map Simplex.dim
-    |> Seq.max
+let dim (Sheaf(com, _)) : int = Complex.dim com
 
 /// Size.
-let size (Sheaf f) : Nat =
-    f
-    |> Map.count
-    |> Nat
-
-/// k-Skeleton.
-let skeleton (k : int) (Sheaf f) : Sheaf =
-    f
-    |> Map.filter (fun (_, x) _ -> Simplex.dim x = k)
-    |> Sheaf
-
-/// Size of the k-skeleton of the underlying complex. TODO: refactor.
-let complexSkeletonSize (k : int) (Sheaf f) =
-    (List.map (fst >> (fun (x, y) -> [ x; y ])) (f |> Map.toList))
-    |> List.collect id
-    |> Set.ofList
-    |> Set.filter (fun x -> k = Simplex.dim x)
-    |> Set.count
-    |> Nat
-
-/// Skeletal decomposition.
-let skelatalDecomposition (sheaf : Sheaf) : Map<int, Sheaf> = skelatalDecomposition dim skeleton sheaf
-
-// Creates a block matrix from the relative boundary data of two sets of simplices.
-let private _blockCompose (rows : Set<Simplex>) (cols : Set<Simplex>) (Sheaf f) : Matrix =
-    let rowArray =
-        rows
-        |> Set.toArray
-        |> Array.sort
-
-    let colArray =
-        cols
-        |> Set.toArray
-        |> Array.sort
-
-    let selector r c = f |> Map.tryFind (rowArray.[r], colArray.[c])
-    let blockArray = Array2D.init (Array.length rowArray) (Array.length colArray) selector
-
-    let dimArray =
-        blockArray
-        |> Array2D.map (fun x ->
-               match x with
-               | None -> 0, 0
-               | Some x -> Matrix.dimRow x |> int, Matrix.dimCol x |> int)
-
-    let rowDim row =
-        row
-        |> Array.map (fst >> Nat)
-        |> Array.reduce max
-
-    let colDim col =
-        col
-        |> Array.map (snd >> Nat)
-        |> Array.reduce max
-
-    let rowDims = [| 0..-1 + Array.length rowArray |] |> Array.map (fun r -> rowDim dimArray.[r, *])
-    let colDims = [| 0..-1 + Array.length colArray |] |> Array.map (fun c -> colDim dimArray.[*, c])
-
-    let fullBlockArray =
-        blockArray
-        |> Array2D.mapi (fun r c x ->
-               match x with
-               | Some x -> x
-               | None -> Matrix.zero rowDims.[r] colDims.[c])
-    [| 0..Array.length rowArray - 1 |]
-    |> Array.map (fun i -> Array.reduce (+|) fullBlockArray.[i, *])
-    |> Array.reduce (+~)
+let size (Sheaf(com, maps)) : Nat * Nat = Complex.size com, Map.count maps |> Nat
 
 /// Creates the k-th boundary matrix of a sheaf.
-let boundaryMatrix (k : int) (sheaf : Sheaf) : Matrix =
-    let kSkeleton = skeleton k sheaf
-    let (Sheaf f) = sheaf
+let coboundaryMatrix (rows : List<Simplex>) (cols : List<Simplex>) (maps : Map<Simplex * Simplex, Matrix>) : Matrix =
+    match (List.length rows, List.length cols) with
+    | (0, 0) -> Matrix.zero Nat.Zero Nat.Zero
+    | (i, 0) ->
+        rows
+        |> List.fold (fun acc sim -> acc + (Matrix.dimRow maps.[(sim, sim)])) Nat.Zero
+        |> fun n -> Matrix.zero n Nat.Zero
+    | (0, j) ->
+        cols
+        |> List.fold (fun acc sim -> acc + (Matrix.dimCol maps.[(sim, sim)])) Nat.Zero
+        |> Matrix.zero Nat.Zero
+    | _ ->
+        let rowArray =
+            rows
+            |> List.toArray
+            |> Array.sort
 
-    let rows =
-        f
-        |> Map.toSeq
-        |> Seq.map (fun ((x, _), _) -> x)
-        |> Set.ofSeq
+        let colArray =
+            cols
+            |> List.toArray
+            |> Array.sort
 
-    let cols =
-        f
-        |> Map.toSeq
-        |> Seq.map (fun ((_, y), _) -> y)
-        |> Set.ofSeq
+        let selector r c =
+            maps
+            |> Map.tryFind (rowArray.[r], colArray.[c])
+            |> function
+            | Some mat -> mat
+            | None -> Matrix.zero (Matrix.dimRow maps.[(rowArray.[r], rowArray.[r])]) (Matrix.dimCol maps.[(colArray.[c], colArray.[c])])
 
-    _blockCompose rows cols kSkeleton
+        let blockArray = Array2D.init (Array.length rowArray) (Array.length colArray) selector
+        [| 0..Array2D.length1 blockArray - 1 |]
+        |> Array.map (fun i -> Array.reduce (+|) blockArray.[i, *])
+        |> Array.reduce (+~)
 
-/// Creates the boundary chain of a sheaf.
-let boundaryChain (sheaf : Sheaf) : Chain =
-    let d = dim sheaf
-    let zero = Matrix.zero Nat.Zero (complexSkeletonSize d sheaf)
-    [ 0..d - 1 ]
-    |> List.map (fun k -> boundaryMatrix k sheaf)
-    |> List.rev
-    |> fun l -> zero :: l
-    |> List.toSeq
-    |> Chain
+/// Creates the reduced boundary chain of a sheaf.
+let reducedCoboundaryCochain (Sheaf(com, maps)) : Chain =
+    if Complex.size com = Nat.Zero then Chain []
+    else
+        let skeleton = com |> Complex.skelatalDecompositionList
+        [ 0..skeleton.Length - 2 ]
+        |> List.map (fun i -> coboundaryMatrix skeleton.[i + 1] skeleton.[i] maps)
+        |> List.toSeq
+        |> Chain
 
-/// Outputs the unreduced cobetti numbers of a sheaf.
-let cobetti (sheaf : Sheaf) : List<Nat> =
+/// Boundary chain.
+let coboundaryCochain (Sheaf(com, maps)) : Chain =
+    let (Complex c) = com
+    c
+    |> Set.remove Simplex.Empty
+    |> Complex
+    |> fun reducedCom -> reducedCoboundaryCochain (Sheaf(reducedCom, maps))
+
+/// Cobetti numbers of a sheaf.
+let cobetti (sheaf : Sheaf) : seq<Nat> =
     sheaf
-    |> boundaryChain
-    |> Chain.betti
-    |> Seq.toList
-    |> List.rev
+    |> coboundaryCochain
+    |> Chain.cobetti
 
-/// Outputs the cohomology of a sheaf.
+/// Cohomology of a sheaf.
 let cohomology (sheaf : Sheaf) : Chain =
-    let homology =
-        sheaf
-        |> boundaryChain
-        |> Chain.homology
+    sheaf
+    |> coboundaryCochain
+    |> Chain.cohomology
 
-    let (Chain a) = homology
-    a
-    |> Seq.rev
-    |> Seq.map (~-)
-    |> Chain
+/// Makes the zero sheaf on a complex.
+let zero (com : Complex) : Sheaf = raise (System.NotImplementedException())
+
+/// Makes the skyscraper sheaf over a simplex of a complex.
+let skyscraper (com : Complex, sim : Simplex) : Sheaf = raise (System.NotImplementedException())
+
+/// Makes the constant sheaf on a complex.
+let constant (com : Complex) = // todo put ret
+    if Complex.size (com) = Nat.Zero then zero com
+    else
+        let (Complex c) = com
+
+        let identityMaps =
+            c
+            |> Set.map (fun x -> (x, x), Matrix.identity Nat.One)
+            |> Set.toList
+
+        let maps =
+            seq {
+                for x in c do
+                    let d = 1 + Simplex.dim x
+                    let higher = c |> Set.filter (fun y -> Simplex.dim y = d)
+                    for y in higher do
+                        if x <=. y then yield ((y, x), Matrix.identity Nat.One)
+            }
+            |> Seq.toList
+
+        let allMaps = identityMaps @ maps |> Map.ofList
+        (com, allMaps) |> Sheaf

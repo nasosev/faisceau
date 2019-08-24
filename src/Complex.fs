@@ -2,8 +2,6 @@
 [<RequireQualifiedAccess>]
 module Complex
 
-open Generics
-
 /// The empty complex.
 let Empty = set [ Simplex.Empty ] |> Complex
 
@@ -56,26 +54,31 @@ let size (Complex c) : Nat =
 /// k-skeleton of a complex.
 let skeleton (k : int) (Complex c) : Set<Simplex> = c |> Set.filter (fun s -> k = Simplex.dim s)
 
+/// Generic function to compute a skelatal decomposition.
+let skelatalDecomposition (com : Complex) : Map<int, Set<Simplex>> =
+    [ -1..dim com ]
+    |> List.map (fun k -> k, skeleton k com)
+    |> Map.ofList
+
+let skelatalDecompositionList (com : Complex) : List<List<Simplex>> =
+    List.map (snd >> Set.toList) (com
+                                  |> skelatalDecomposition
+                                  |> Map.toList
+                                  |> List.sortBy fst)
+
 /// Size of the k-skeleton of a complex.
 let skeletonSize (k : int) (c : Complex) : Nat =
     skeleton k c
     |> Set.count
     |> Nat
 
-/// Skeletal decomposition.
-let skelatalDecomposition (com : Complex) : Map<int, Set<Simplex>> = skelatalDecomposition dim skeleton com
-
 /// Reduced boundary chain.
 let reducedBoundaryChain (com : Complex) : Chain =
     if size com = Nat.Zero then Chain []
     else
-        let l =
-            List.map (snd >> Set.toList) (com
-                                          |> skelatalDecomposition
-                                          |> Map.toList
-                                          |> List.sortBy fst)
-        [ 0..l.Length - 2 ]
-        |> List.map (fun i -> Simplex.boundaryMatrix l.[i] l.[i + 1])
+        let skeleton = com |> skelatalDecompositionList
+        [ 0..skeleton.Length - 2 ]
+        |> List.map (fun i -> Simplex.boundaryMatrix skeleton.[i] skeleton.[i + 1])
         |> List.toSeq
         |> Chain
 
@@ -92,6 +95,18 @@ let boundaryChain (com : Complex) : Chain =
     |> Set.remove Simplex.Empty
     |> Complex
     |> reducedBoundaryChain
+
+/// Betti numbers of a complex.
+let betti (com : Complex) : seq<Nat> =
+    com
+    |> boundaryChain
+    |> Chain.betti
+
+/// Homology of a complex.
+let homology (com : Complex) : Chain =
+    com
+    |> boundaryChain
+    |> Chain.homology
 
 // TODO
 let flag (com : Complex) = raise (System.NotImplementedException())

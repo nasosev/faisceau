@@ -1,5 +1,4 @@
 #load "../src/Helpers.fs"
-#load "../src/Generics.fs"
 #load "../src/Types.fs"
 #load "../src/Matrix.fs"
 #load "../src/Chain.fs"
