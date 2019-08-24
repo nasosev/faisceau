@@ -3,7 +3,7 @@
 module Helpers
 
 /// Number of distinct list lengths in a list of lists.
-let internal listNumDistinctListLengths (ll : List<List<'a>>) : int =
+let internal listNumDistinctListLengths (ll : 'a list list) : int =
     ll
     |> List.map List.length
     |> List.distinct

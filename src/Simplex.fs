@@ -9,7 +9,7 @@ let Empty = set [] |> Simplex
 let dim (Simplex x) : int = Set.count x - 1
 
 /// Computes the boundary matrix associated to two lists of simplices.
-let boundaryMatrix (rows : List<Simplex>) (cols : List<Simplex>) : Matrix =
+let boundaryMatrix (rows : Simplex list) (cols : Simplex list) : Matrix =
     let rowArray = rows |> List.toArray
     let colArray = cols |> List.toArray
     let boundary r c = (rowArray.[r], colArray.[c]) ||> (<=.)

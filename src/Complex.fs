@@ -14,7 +14,7 @@ let closure (sims : Set<Simplex>) : Complex =
     |> Complex
 
 /// Convenience constructor to produce a simplicial complex from a partial specification of the simplices (eg the facets).
-let make (input : List<List<int>>) : Complex =
+let make (input : int list list) : Complex =
     List.map (set >> ((fun x -> x |> Set.map Label) >> Simplex)) input
     |> set
     |> closure
@@ -60,7 +60,7 @@ let skelatalDecomposition (com : Complex) : Map<int, Set<Simplex>> =
     |> List.map (fun k -> k, skeleton k com)
     |> Map.ofList
 
-let skelatalDecompositionList (com : Complex) : List<List<Simplex>> =
+let skelatalDecompositionList (com : Complex) : Simplex list list =
     List.map (snd >> Set.toList) (com
                                   |> skelatalDecomposition
                                   |> Map.toList
@@ -97,7 +97,7 @@ let boundaryChain (com : Complex) : Chain =
     |> reducedBoundaryChain
 
 /// Betti numbers of a complex.
-let betti (com : Complex) : seq<Nat> =
+let betti (com : Complex) : Nat seq =
     com
     |> boundaryChain
     |> Chain.betti

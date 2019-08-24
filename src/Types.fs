@@ -137,7 +137,7 @@ type Matrix =
 /// Chain complex.
 [<StructuredFormatDisplayAttribute("{PrettyPrinter}")>]
 type Chain =
-    | Chain of seq<Matrix>
+    | Chain of Matrix seq
 
     // Pretty printer.
     member __.PrettyPrinter : string =

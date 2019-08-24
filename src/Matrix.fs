@@ -3,7 +3,7 @@
 module Matrix
 
 /// Convenience constructor to produce a matrix.
-let make (input : List<List<int>>) : Matrix =
+let make (input : int list list) : Matrix =
     if (Helpers.listNumDistinctListLengths input) <> 1 then invalidOp "Cannot make matrix from no row vectors or row vectors of unequal dimensions."
     let converter r c =
         match input.[r].[c] with

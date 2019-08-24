@@ -3,7 +3,7 @@
 module Chain
 
 // Convenience constructor with checking.
-let make (input : seq<Matrix>) : Chain =
+let make (input : Matrix seq) : Chain =
     // Try to multiply consecutive elements to see if an exception occurs.
     let a = input |> Seq.toArray
     try
@@ -20,13 +20,13 @@ let length (Chain a) : Nat = Seq.length a |> Nat
 let rev (Chain a) : Chain = Seq.rev a |> Chain
 
 /// Dimensions of chain.
-let dim (Chain a) : seq<Nat> = a |> Seq.map Matrix.dimCol
+let dim (Chain a) : Nat seq = a |> Seq.map Matrix.dimCol
 
 /// Row and columensions of chain.
-let dims (Chain a) : seq<Nat * Nat> = a |> Seq.map Matrix.dim
+let dims (Chain a) : (Nat * Nat) seq = a |> Seq.map Matrix.dim
 
 /// Rank sequence of chain.
-let rk (Chain a) : seq<Nat> = a |> Seq.map Matrix.rk
+let rk (Chain a) : Nat seq = a |> Seq.map Matrix.rk
 
 /// Euler characteristic.
 let euler (Chain a) : int = a |> Seq.fold (fun acc m -> (Matrix.dimCol m |> int) - acc) 0
@@ -56,7 +56,7 @@ let private _chainHomology (Chain a) : Chain =
     Seq.map2 Matrix.quotient k i |> Chain
 
 /// Chain betti.
-let private _chainBetti (Chain a) : seq<Nat> =
+let private _chainBetti (Chain a) : Nat seq =
     let k = a |> Seq.map Matrix.nul
 
     let i =
@@ -66,7 +66,7 @@ let private _chainBetti (Chain a) : seq<Nat> =
     Seq.map2 (-) k i
 
 /// Betti numbers.
-let betti (a : Cochain) : seq<Nat> =
+let betti (a : Cochain) : Nat seq =
     if length a = Nat.Zero then seq []
     else
         a
@@ -82,7 +82,7 @@ let homology (a : Cochain) : Cochain =
         |> _chainHomology
 
 /// Cobetti numbers.
-let cobetti (a : Cochain) : seq<Nat> =
+let cobetti (a : Cochain) : Nat seq =
     if length a = Nat.Zero then seq []
     else
         a

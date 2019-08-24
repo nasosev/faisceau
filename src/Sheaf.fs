@@ -3,7 +3,7 @@
 module Sheaf
 
 /// Convenience constructor to produce a sheaf.
-let make (input : Complex * List<List<int> * List<int> * Matrix>) : Sheaf =
+let make (input : Complex * (int list * int list * Matrix) list) : Sheaf =
     let com = fst input
 
     let intListtoSimplex x =
@@ -27,7 +27,7 @@ let dim (Sheaf(com, _)) : int = Complex.dim com
 let size (Sheaf(com, maps)) : Nat * Nat = Complex.size com, Map.count maps |> Nat
 
 /// Creates the k-th coboundary matrix of a sheaf.
-let coboundaryMatrix (rows : List<Simplex>) (cols : List<Simplex>) (maps : Map<Simplex * Simplex, Matrix>) : Matrix =
+let coboundaryMatrix (rows : Simplex list) (cols : Simplex list) (maps : Map<Simplex * Simplex, Matrix>) : Matrix =
     match (List.length rows, List.length cols) with
     | (0, 0) -> Matrix.zero Nat.Zero Nat.Zero
     | (i, 0) ->
@@ -73,7 +73,7 @@ let coboundaryCochain (Sheaf(com, maps)) : Chain =
     |> fun reducedCom -> reducedCoboundaryCochain (Sheaf(reducedCom, maps))
 
 /// Cobetti numbers of a sheaf.
-let cobetti (sheaf : Sheaf) : seq<Nat> =
+let cobetti (sheaf : Sheaf) : Nat seq =
     sheaf
     |> coboundaryCochain
     |> Chain.cobetti

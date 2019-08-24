@@ -16,17 +16,17 @@ let NodeSize = 20
 let EdgeWidth = 5
 
 /// Creates scatter plot of nodes.
-let createNodes (coords : List<int * int>) : Scatter =
+let createNodes (coords : (int * int) list) : Scatter =
     let x, y = coords |> List.unzip
     Scatter(x = x, y = y, mode = "markers", marker = Marker(color = "black", size = NodeSize))
 
 /// Creates edge shape.
-let createEdge (coords : List<int * int>) : Shape =
+let createEdge (coords : (int * int) list) : Shape =
     let x0, y0, x1, y1 = fst coords.[0], snd coords.[0], fst coords.[1], snd coords.[1]
     Shape(``type`` = "line", x0 = x0, y0 = y0, x1 = x1, y1 = y1, line = Line(color = "black", width = EdgeWidth))
 
 /// Creates triangle shape.
-let createTriangle color (coords : List<int * int>) : Shape =
+let createTriangle color (coords : (int * int) list) : Shape =
     let createSvgPath coords =
         coords
         |> List.map (fun (x, y) -> string x + " " + string y)
@@ -35,7 +35,7 @@ let createTriangle color (coords : List<int * int>) : Shape =
     Shape(``type`` = "path", path = createSvgPath coords, fillcolor = color, line = Line(width = 0))
 
 /// Plots simplicial complex with coordinates.
-let complex (com : Complex) (coords : List<int * int>) : PlotlyChart =
+let complex (com : Complex) (coords : (int * int) list) : PlotlyChart =
     let labels = [ Nat.Zero..(Complex.skeletonSize 0 com - Nat.One) ] |> List.map (fun (Nat n) -> Label n)
 
     let coordMap =
@@ -43,7 +43,7 @@ let complex (com : Complex) (coords : List<int * int>) : PlotlyChart =
         ||> List.zip
         |> Map.ofList
 
-    let simplicesToCoords (simplices : List<Simplex>) =
+    let simplicesToCoords (simplices : Simplex list) =
         simplices
         |> List.map (fun (Simplex s) ->
                s
@@ -81,7 +81,7 @@ let complex (com : Complex) (coords : List<int * int>) : PlotlyChart =
         |> Complex.facets
         |> Set.toList
 
-    let triangleShapes color (triangles : List<Simplex>) =
+    let triangleShapes color (triangles : Simplex list) =
         triangles
         |> simplicesToCoords
         |> List.map (createTriangle color)
