@@ -15,7 +15,6 @@ We are presently in very early development and most of the intended functionalit
 Look at the Jupyter Notebooks in the [examples](examples) folder.
 
 For simplicity and performance, _faisceau_ works with coefficients in the binary field F2.
-(The downside is that we cannot detect orientation.)
 
 ### Dependencies
 
