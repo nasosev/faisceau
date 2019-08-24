@@ -4,10 +4,7 @@ module SpecificTests
 
 open FsCheck
 
-let betti =
-    Complex.boundaryChain
-    >> Chain.betti
-    >> Seq.toList
+let betti = Complex.betti >> Seq.toList
 
 let relBetti =
     Complex.relativeBoundaryChain
@@ -16,7 +13,7 @@ let relBetti =
 
 let nat = List.map Nat
 
-type SimplexSpecificTests =
+type ComplexTests =
 
     static member ``relative homology of ball mod boundary is reduced homology of sphere``() : bool =
         let com = [ [ 1..8 ] ] |> Complex.make
@@ -791,4 +788,4 @@ type SimplexSpecificTests =
 
 let testAll() : unit =
     let config = { Config.Default with MaxTest = 1 }
-    Check.All<SimplexSpecificTests>(config)
+    Check.All<ComplexTests>(config)

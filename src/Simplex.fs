@@ -10,5 +10,7 @@ let dim (Simplex x) : int = Set.count x - 1
 
 /// Computes the boundary matrix associated to two lists of simplices.
 let boundaryMatrix (rows : List<Simplex>) (cols : List<Simplex>) : Matrix =
-    let boundary r c = (rows.[r], cols.[c]) ||> (<=.)
+    let rowArray = rows |> List.toArray
+    let colArray = cols |> List.toArray
+    let boundary r c = (rowArray.[r], colArray.[c]) ||> (<=.)
     Array2D.init rows.Length cols.Length boundary |> Matrix

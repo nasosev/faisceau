@@ -11,9 +11,10 @@ let internal listNumDistinctListLengths (ll : List<List<'a>>) : int =
 
 /// Tries to find a specified element in an 2D array. Maybe returns the coordinate.
 let internal array2DtryFind (x : 'a) (a : 'b [,]) : (int * int) option =
+    let len = Array2D.length2 a
     a
     |> Seq.cast
-    |> Seq.mapi (fun i y -> ((i / (Array2D.length2 a), i % (Array2D.length2 a)), y))
+    |> Seq.mapi (fun i y -> (i / len, i % len), y)
     |> Seq.tryFind (fun (_, y) -> y = x)
     |> fun r ->
         match r with

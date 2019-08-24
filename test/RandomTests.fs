@@ -35,7 +35,7 @@ type MatrixTests =
         let mat2 = Matrix.random n n
         Matrix.tr (mat1 *! mat2) = (Matrix.tr (mat1) && Matrix.tr (mat2))
 
-    static member ``rank-nullity`` (mat : Matrix) =
+    static member ``rank-nullity`` (mat : Matrix) : bool =
         let numberForm = Matrix.rk mat + Matrix.nul mat = Matrix.dimCol mat
         let spaceForm = Matrix.dimCol (Matrix.ker mat) + Matrix.dimCol (Matrix.im mat) = Matrix.dimCol mat
         numberForm && spaceForm
@@ -60,7 +60,7 @@ type MatrixTests =
             let inv = Matrix.inv mat
             (mat * inv = id) && (inv * mat = id)
 
-type SimplexTests =
+type ComplexTests =
 
     static member ``closure is idempotent`` (xs : Set<Simplex>) : bool =
         let (Complex c) = Complex.closure xs
@@ -159,5 +159,5 @@ type SheafTests =
 let testAll (endSize : int) : unit =
     let config = { Config.Default with EndSize = endSize }
     Check.All<MatrixTests>(config)
-    Check.All<SimplexTests>(config)
+    Check.All<ComplexTests>(config)
     Check.All<SheafTests>(config)
