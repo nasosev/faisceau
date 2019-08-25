@@ -26,15 +26,15 @@ let dim (Sheaf(com, _)) : int = Complex.dim com
 /// Size.
 let size (Sheaf(com, maps)) : Nat * Nat = Complex.size com, Map.count maps |> Nat
 
-/// Creates the k-th coboundary matrix of a sheaf.
+/// Creates the coboundary matrix of a sheaf.
 let coboundaryMatrix (rows : Simplex list) (cols : Simplex list) (maps : (Simplex * Simplex, Matrix) Map) : Matrix =
     match (List.length rows, List.length cols) with
-    | (0, 0) -> Matrix.zero Nat.Zero Nat.Zero
-    | (i, 0) ->
+    | 0, 0 -> Matrix.zero Nat.Zero Nat.Zero
+    | _, 0 ->
         rows
         |> List.fold (fun acc sim -> acc + (Matrix.dimRow maps.[sim, sim])) Nat.Zero
         |> fun n -> Matrix.zero n Nat.Zero
-    | (0, j) ->
+    | 0, _ ->
         cols
         |> List.fold (fun acc sim -> acc + (Matrix.dimCol maps.[sim, sim])) Nat.Zero
         |> Matrix.zero Nat.Zero

@@ -120,5 +120,8 @@ let complexRng (com : Complex) : PlotlyChart =
     let next() = rng.NextDouble() * 100.0 |> int
 
     let randomCoords =
-        [ for i in Nat.Zero..(Complex.skeletonSize 0 com - Nat.One) -> next(), next() ]
+        com
+        |> Complex.skeleton 0
+        |> Set.toList
+        |> List.map (fun _ -> next(), next())
     complex com randomCoords
