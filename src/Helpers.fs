@@ -22,16 +22,16 @@ let internal array2DtryFind (x : 'a) (a : 'b [,]) : (int * int) option =
         | None -> None
 
 /// Powerset of a set.
-let rec internal powerset (s : Set<'a>) : Set<Set<'a>> =
+let rec internal powerset (s : 'a Set) : 'a Set Set =
     set [ yield s
           for e in s do
               yield! powerset (Set.remove e s) ]
 
 /// Set of k-subsets of a set.
-let internal kSubsets (k : int) (set : Set<'a>) : Set<Set<'a>> = powerset set |> Set.filter (fun s -> k = Set.count s)
+let internal kSubsets (k : int) (set : 'a Set) : 'a Set Set = powerset set |> Set.filter (fun s -> k = Set.count s)
 
 /// Symmetric difference of two sets.
-let internal symmetricDifference (xs1 : Set<'a>) (xs2 : Set<'a>) : Set<'a> = (xs1 - xs2) + (xs2 - xs1)
+let internal symmetricDifference (xs1 : 'a Set) (xs2 : 'a Set) : 'a Set = (xs1 - xs2) + (xs2 - xs1)
 
 /// Debug print.
 let debugX x =

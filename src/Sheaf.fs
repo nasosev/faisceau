@@ -27,7 +27,7 @@ let dim (Sheaf(com, _)) : int = Complex.dim com
 let size (Sheaf(com, maps)) : Nat * Nat = Complex.size com, Map.count maps |> Nat
 
 /// Creates the k-th coboundary matrix of a sheaf.
-let coboundaryMatrix (rows : Simplex list) (cols : Simplex list) (maps : Map<Simplex * Simplex, Matrix>) : Matrix =
+let coboundaryMatrix (rows : Simplex list) (cols : Simplex list) (maps : (Simplex * Simplex, Matrix) Map) : Matrix =
     match (List.length rows, List.length cols) with
     | (0, 0) -> Matrix.zero Nat.Zero Nat.Zero
     | (i, 0) ->

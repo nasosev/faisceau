@@ -6,7 +6,7 @@ module Complex
 let Empty = set [ Simplex.Empty ] |> Complex
 
 /// Computes the topological closure of a set of simplices.
-let closure (sims : Set<Simplex>) : Complex =
+let closure (sims : Simplex Set) : Complex =
     sims + set [ Simplex.Empty ]
     |> Set.map (fun (Simplex s) -> Helpers.powerset s)
     |> Set.unionMany
@@ -20,7 +20,7 @@ let make (input : int list list) : Complex =
     |> closure
 
 /// Returns the top-dimensional simplices of a complex.
-let facets (Complex c) : Set<Simplex> =
+let facets (Complex c) : Simplex Set =
     c - set [ for x in c do
                   for y in c do
                       if x <. y then yield x ]
@@ -52,10 +52,10 @@ let size (Complex c) : Nat =
     |> Nat
 
 /// k-skeleton of a complex.
-let skeleton (k : int) (Complex c) : Set<Simplex> = c |> Set.filter (fun s -> k = Simplex.dim s)
+let skeleton (k : int) (Complex c) : Simplex Set = c |> Set.filter (fun s -> k = Simplex.dim s)
 
 /// Generic function to compute a skelatal decomposition.
-let skelatalDecomposition (com : Complex) : Map<int, Set<Simplex>> =
+let skelatalDecomposition (com : Complex) : (int, Simplex Set)Map =
     [ -1..dim com ]
     |> List.map (fun k -> k, skeleton k com)
     |> Map.ofList

@@ -177,7 +177,7 @@ type Cochain = Chain
 /// Simplex type.
 [<StructuredFormatDisplayAttribute("{PrettyPrinter}")>]
 type Simplex =
-    | Simplex of Set<Label>
+    | Simplex of Label Set
 
     member __.PrettyPrinter : string =
         let (Simplex s) = __
@@ -193,7 +193,7 @@ type Simplex =
 /// Simplicial complex type. Must satisfy complex relation (i.e. equal its powerset).
 [<StructuredFormatDisplayAttribute("{PrettyPrinter}")>]
 type Complex =
-    | Complex of Set<Simplex>
+    | Complex of Simplex Set
 
     member __.PrettyPrinter : string =
         let (Complex c) = __
@@ -203,7 +203,7 @@ type Complex =
         |> String.concat " ; "
 
     /// Mapper.
-    static member inline map (f : Simplex -> ^a) (Complex c) : Set< ^a > = Set.map f c
+    static member inline map (f : Simplex -> ^a) (Complex c) : ^a Set = Set.map f c
 
     // Proper inclusion.
     static member (<.) (Complex c, Complex d) : bool = Set.isProperSubset c d
@@ -212,7 +212,7 @@ type Complex =
 
 /// Sheaf.
 type Sheaf =
-    | Sheaf of Complex * Map<Simplex * Simplex, Matrix>
+    | Sheaf of Complex * ((Simplex * Simplex), Matrix)Map
     // Direct sum.
     static member (+) (a : Sheaf, b : Sheaf) : Sheaf = raise (System.NotImplementedException())
     // Tensor product.
