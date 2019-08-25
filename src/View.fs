@@ -36,7 +36,12 @@ let createTriangle color (coords : (int * int) list) : Shape =
 
 /// Plots simplicial complex with coordinates.
 let complex (com : Complex) (coords : (int * int) list) : PlotlyChart =
-    let labels = [ Nat.Zero..(Complex.skeletonSize 0 com - Nat.One) ] |> List.map (fun (Nat n) -> Label n)
+    let labels =
+        Complex.skeleton 0 com
+        |> Set.map (fun (Simplex x) -> x)
+        |> Set.map Set.minElement
+        |> Set.toList
+        |> List.sort
 
     let coordMap =
         (labels, coords)
