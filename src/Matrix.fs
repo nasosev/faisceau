@@ -11,7 +11,7 @@ let make (input : int list list) : Matrix =
         | _ -> false
     Array2D.init input.Length input.[0].Length converter |> Matrix
 
-/// Row dimension.
+/// Transpose.
 let transpose (mat : Matrix) : Matrix = -mat
 
 /// Row dimension.

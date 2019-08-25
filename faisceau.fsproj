@@ -3,7 +3,7 @@
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
   <PropertyGroup>
-    <OtherFlags>$(OtherFlags) --warnon:1182</OtherFlags>
+    <OtherFlags>$(OtherFlags) --warnon:1182 --warn:5 --nowarn:62 </OtherFlags>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src\Helpers.fs" />

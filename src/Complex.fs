@@ -26,7 +26,7 @@ let facets (Complex c) : Simplex Set =
                       if x <. y then yield x ]
 
 /// Topological boundary.
-let boundary (com : Complex) =
+let boundary (com : Complex) : Complex=
     let simplexBoundary (Simplex x) = x |> Set.map (fun v -> x - set [ v ] |> Simplex)
     com
     |> facets
@@ -35,7 +35,7 @@ let boundary (com : Complex) =
     |> closure
 
 /// The star of a simplex in a complex.
-let star (Complex c, x : Simplex) =
+let star (Complex c, x : Simplex) : Complex =
     c
     |> Set.filter (fun y -> x <=. y)
     |> Complex
@@ -46,6 +46,7 @@ let dim (Complex c) : int =
     |> Set.map Simplex.dim
     |> Seq.max
 
+/// Size of a complex.
 let size (Complex c) : Nat =
     c
     |> Set.count
@@ -54,12 +55,13 @@ let size (Complex c) : Nat =
 /// k-skeleton of a complex.
 let skeleton (k : int) (Complex c) : Simplex Set = c |> Set.filter (fun s -> k = Simplex.dim s)
 
-/// Generic function to compute a skelatal decomposition.
+/// Skelatal decomposition of a complex.
 let skelatalDecomposition (com : Complex) : (int, Simplex Set)Map =
     [ -1..dim com ]
     |> List.map (fun k -> k, skeleton k com)
     |> Map.ofList
 
+/// Skelatal decomposition of a complex as a list of lists.
 let skelatalDecompositionList (com : Complex) : Simplex list list =
     List.map (snd >> Set.toList) (com
                                   |> skelatalDecomposition
