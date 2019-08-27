@@ -4,4 +4,5 @@
 #load "../src/Chain.fs"
 #load "../src/Simplex.fs"
 #load "../src/Complex.fs"
+#load "../src/ComplexMorphism.fs"
 #load "../src/Sheaf.fs"

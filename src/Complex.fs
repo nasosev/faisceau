@@ -15,7 +15,10 @@ let closure (sims : Simplex Set) : Complex =
 
 /// Convenience constructor to produce a simplicial complex from a partial specification of the simplices (eg the facets).
 let make (input : int list list) : Complex =
-    List.map (set >> ((fun x -> x |> Set.map Label) >> Simplex)) input
+    input
+    |> List.map (set
+                 >> Set.map Label
+                 >> Simplex)
     |> set
     |> closure
 
@@ -26,7 +29,7 @@ let facets (Complex c) : Simplex Set =
                       if x <. y then yield x ]
 
 /// Topological boundary.
-let boundary (com : Complex) : Complex=
+let boundary (com : Complex) : Complex =
     let simplexBoundary (Simplex x) = x |> Set.map (fun v -> x - set [ v ] |> Simplex)
     com
     |> facets
@@ -98,17 +101,69 @@ let boundaryChain (com : Complex) : Chain =
     |> Complex
     |> reducedBoundaryChain
 
+/// Reduced coboundary chain.
+let reducedCoboundaryCochain (com : Complex) : Cochain =
+    com
+    |> reducedBoundaryChain
+    |> Chain.map Matrix.transpose
+    |> Chain
+
+/// Relative reduced coboundary chain.
+let relativeCoboundaryChain (Complex c, Complex d) : Cochain =
+    c - d
+    |> Complex
+    |> reducedCoboundaryCochain
+
+/// Coboundary cochain.
+let coboundaryChain (com : Complex) : Cochain =
+    let (Complex c) = com
+    c
+    |> Set.remove Simplex.Empty
+    |> Complex
+    |> reducedCoboundaryCochain
+
 /// Betti numbers of a complex.
 let betti (com : Complex) : Nat seq =
     com
     |> boundaryChain
     |> Chain.betti
 
+/// Cobetti numbers of a complex.
+let cobetti (com : Complex) : Nat seq =
+    com
+    |> coboundaryChain
+    |> Chain.cobetti
+
 /// Homology of a complex.
 let homology (com : Complex) : Chain =
     com
     |> boundaryChain
     |> Chain.homology
+
+/// Relative homology of a complex
+let relativeHomology (com : Complex, subcom : Complex) : Chain =
+    (com, subcom)
+    |> relativeBoundaryChain
+    |> Chain.homology
+
+/// Cohomology of a complex.
+let cohomology (com : Complex) : Cochain =
+    com
+    |> coboundaryChain
+    |> Chain.cohomology
+
+/// Relative cohomology of a complex
+let relativeCohomology (com : Complex, subcom : Complex) : Cochain =
+    (com, subcom)
+    |> relativeCoboundaryChain
+    |> Chain.cohomology
+
+/// Local cohomology of a complex relative to a subsimplex.
+let localCohomology (Complex com, subsim : Simplex) : Cochain =
+    let relativeCells = com - set [ subsim ] |> closure
+    (Complex com, relativeCells)
+    |> relativeCoboundaryChain
+    |> Chain.cohomology
 
 // TODO
 let flag (com : Complex) = raise (System.NotImplementedException())

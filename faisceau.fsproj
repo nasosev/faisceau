@@ -12,6 +12,7 @@
     <Compile Include="src\Chain.fs" />
     <Compile Include="src\Simplex.fs" />
     <Compile Include="src\Complex.fs" />
+    <Compile Include="src\ComplexMorphism.fs" />
     <Compile Include="src\Sheaf.fs" />
     <Compile Include="src\View.fs" />
     <Compile Include="test\RandomTests.fs" />

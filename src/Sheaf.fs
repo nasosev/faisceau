@@ -26,8 +26,8 @@ let dim (Sheaf(com, _)) : int = Complex.dim com
 /// Size.
 let size (Sheaf(com, maps)) : Nat * Nat = Complex.size com, Map.count maps |> Nat
 
-/// Creates the coboundary matrix of a sheaf.
-let coboundaryMatrix (rows : Simplex list) (cols : Simplex list) (maps : (Simplex * Simplex, Matrix) Map) : Matrix =
+/// Coboundary matrix of a sheaf.
+let coboundaryMatrix (rows : Simplex list) (cols : Simplex list) (maps : ((Simplex * Simplex), Matrix)Map) : Matrix =
     match (List.length rows, List.length cols) with
     | 0, 0 -> Matrix.zero Nat.Zero Nat.Zero
     | _, 0 ->
@@ -54,8 +54,8 @@ let coboundaryMatrix (rows : Simplex list) (cols : Simplex list) (maps : (Simple
         |> Array.map (fun i -> Array.reduce (+|) blockArray.[i, *])
         |> Array.reduce (+~)
 
-/// Makes the reduced coboundary chain of a sheaf.
-let reducedCoboundaryCochain (Sheaf(com, maps)) : Chain =
+/// Reduced coboundary chain of a sheaf.
+let reducedCoboundaryCochain (Sheaf(com, maps)) : Cochain =
     if Complex.size com = Nat.Zero then Chain []
     else
         let skeleton = com |> Complex.skelatalDecompositionList
@@ -65,7 +65,7 @@ let reducedCoboundaryCochain (Sheaf(com, maps)) : Chain =
         |> Chain
 
 /// Boundary chain.
-let coboundaryCochain (Sheaf(com, maps)) : Chain =
+let coboundaryCochain (Sheaf(com, maps)) : Cochain =
     let (Complex c) = com
     c
     |> Set.remove Simplex.Empty
@@ -79,27 +79,27 @@ let cobetti (sheaf : Sheaf) : Nat seq =
     |> Chain.cobetti
 
 /// Cohomology of a sheaf.
-let cohomology (sheaf : Sheaf) : Chain =
+let cohomology (sheaf : Sheaf) : Cochain =
     sheaf
     |> coboundaryCochain
     |> Chain.cohomology
 
-/// Makes the zero sheaf on a complex.
+/// Zero sheaf on a complex.
 let zero (com : Complex) : Sheaf = raise (System.NotImplementedException())
 
-/// Makes the skyscraper sheaf over a simplex of a complex.
+/// Skyscraper sheaf over a simplex of a complex.
 let skyscraper (com : Complex, sim : Simplex) : Sheaf = raise (System.NotImplementedException())
 
-/// Makes the constant sheaf on a complex.
+/// Constant sheaf on a complex.
 let constant (com : Complex) : Sheaf =
     let (Complex c) = com
 
-    let identityMaps =
+    let selfMaps =
         c
         |> Set.map (fun x -> (x, x), Matrix.identity Nat.One)
         |> Set.toList
 
-    let maps =
+    let otherMaps =
         seq {
             for x in c do
                 let d = 1 + Simplex.dim x
@@ -109,5 +109,8 @@ let constant (com : Complex) : Sheaf =
         }
         |> Seq.toList
 
-    let allMaps = identityMaps @ maps |> Map.ofList
+    let allMaps = selfMaps @ otherMaps |> Map.ofList
     (com, allMaps) |> Sheaf
+
+/// Orientation sheaf on a complex.
+let orientation (com : Complex) : Sheaf = raise (System.NotImplementedException())

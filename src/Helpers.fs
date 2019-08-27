@@ -2,6 +2,9 @@
 [<RequireQualifiedAccess>]
 module Helpers
 
+/// Map a function to a homogeneous pair.
+let pairMap (f : 'a -> 'b) (x : 'a, y : 'a) : 'b * 'b = f x, f y
+
 /// Number of distinct list lengths in a list of lists.
 let internal listNumDistinctListLengths (ll : 'a list list) : int =
     ll

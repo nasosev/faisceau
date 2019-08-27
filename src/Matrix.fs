@@ -20,6 +20,26 @@ let dimRow (Matrix m) : Nat = Array2D.length1 m |> Nat
 /// Column dimension.
 let dimCol (Matrix m) : Nat = Array2D.length2 m |> Nat
 
+/// Row list.
+let rows (mat : Matrix) : List<Matrix> = [ 0..(dimRow mat |> int) - 1 ] |> List.map (fun i -> mat.[Nat i, *])
+
+/// Column list.
+let cols (mat : Matrix) : List<Matrix> = [ 0..(dimCol mat |> int) - 1 ] |> List.map (fun i -> mat.[*, Nat i])
+
+/// Delete duplicate rows.
+let distinctRows (mat : Matrix) : Matrix =
+    mat
+    |> rows
+    |> List.distinct
+    |> List.reduce (+~)
+
+/// Delete duplicate columns.
+let distinctCols (mat : Matrix) : Matrix =
+    mat
+    |> cols
+    |> List.distinct
+    |> List.reduce (+|)
+
 /// Matrix dimension.
 let dim (mat : Matrix) : Nat * Nat = (dimRow mat, dimCol mat)
 
@@ -46,51 +66,60 @@ let removeRow (mat : Matrix) (r : Nat) : Matrix = mat.[..r - Nat.One, *] +~ mat.
 let removeCol (mat : Matrix) (c : Nat) : Matrix = mat.[*, ..c - Nat.One] +| mat.[*, c + Nat.One..]
 
 /// Gives the Smith normal form of a matrix.
-let smithNormalForm (Matrix m) : Matrix =
-    let normal = Array2D.copy m
-    let maxRowIndex = -1 + Array2D.length1 normal
-    let maxColIndex = -1 + Array2D.length2 normal
+let rowReduce (dimCol : Nat) (Matrix m) : Matrix =
+    let array = Array2D.copy m
+    let maxRow = -1 + Array2D.length1 array
+    let maxCol = -1 + (int dimCol)
 
-    let exchangeRows i j =
-        let x = normal.[i, *]
-        normal.[i, *] <- normal.[j, *]
-        normal.[j, *] <- x
+    let swapRows i j =
+        let x = array.[i, *]
+        array.[i, *] <- array.[j, *]
+        array.[j, *] <- x
 
-    let exchangeCols i j =
-        let x = normal.[*, i]
-        normal.[*, i] <- normal.[*, j]
-        normal.[*, j] <- x
+    let swapCols i j =
+        let x = array.[*, i]
+        array.[*, i] <- array.[*, j]
+        array.[*, j] <- x
 
-    let addRow x i = normal.[i, *] <- Array.map2 (<>) normal.[x, *] normal.[i, *]
-    let addCol x j = normal.[*, j] <- Array.map2 (<>) normal.[*, x] normal.[*, j]
+    let addRow x i = array.[i, *] <- Array.map2 (<>) array.[x, *] array.[i, *]
+    let addCol x j = array.[*, j] <- Array.map2 (<>) array.[*, x] array.[*, j]
 
     let rec reduce x =
-        match Helpers.array2DtryFind true normal.[x.., x..] with
+        match Helpers.array2DtryFind true array.[x..maxRow, x..maxCol] with
         | None -> ()
         | Some(i, j) ->
-            exchangeRows x (i + x)
-            exchangeCols x (j + x)
-            for i in x + 1..maxRowIndex do
-                if normal.[i, x] then addRow x i
+            swapRows x (i + x)
+            swapCols x (j + x)
+            for i in x + 1..maxRow do
+                if array.[i, x] then addRow x i
                 else ()
-            for j in x + 1..maxColIndex do
-                if normal.[x, j] then addCol x j
+            for j in x + 1..maxCol do
+                if array.[x, j] then addCol x j
                 else ()
             reduce (x + 1)
     reduce 0
-    normal |> Matrix
+    array |> Matrix
+
+/// Gives the Smith normal form of a matrix.
+let smithNormalForm (mat : Matrix) : Matrix = rowReduce (dimCol mat) mat
+
+/// Solves the linear system A*X = B.
+let linSolve (matA : Matrix) (matB : Matrix) : Matrix =
+    let dimColA = dimCol matA
+    let rowReduce = rowReduce dimColA (matA +| matB)
+    rowReduce.[..dimColA - Nat.One, dimColA..]
 
 /// Gives the Smith normal form factors `(left,right)` of the input matrix `input`, where `normal = left * input * right`.
 let smithFormFactors (Matrix m) : Matrix * Matrix =
-    let maxRowIndex = -1 + Array2D.length1 m
-    let maxColIndex = -1 + Array2D.length2 m
     let rowDim = Array2D.length1 m
     let colDim = Array2D.length2 m
-    let normal = Array2D.copy m
+    let maxRow = -1 + rowDim
+    let maxCol = -1 + colDim
+    let array = Array2D.copy m
     let mutable left = identity (Nat rowDim)
     let mutable right = identity (Nat colDim)
 
-    let exchangeRowsMatrix i j =
+    let swapRowsMatrix i j =
         let init r c =
             match r, c with
             | (x, y) when (x, y) = (i, j) -> true
@@ -111,7 +140,7 @@ let smithFormFactors (Matrix m) : Matrix * Matrix =
         let matrix = Array2D.init rowDim rowDim init |> Matrix
         left <- matrix * left
 
-    let exchangeColsMatrix i j =
+    let swapColsMatrix i j =
         let init r c =
             match r, c with
             | (x, y) when (x, y) = (i, j) -> true
@@ -132,34 +161,34 @@ let smithFormFactors (Matrix m) : Matrix * Matrix =
         let matrix = Array2D.init colDim colDim init |> Matrix
         right <- right * matrix
 
-    let exchangeRows i j =
-        let x = normal.[i, *]
-        normal.[i, *] <- normal.[j, *]
-        normal.[j, *] <- x
+    let swapRows i j =
+        let x = array.[i, *]
+        array.[i, *] <- array.[j, *]
+        array.[j, *] <- x
 
-    let exchangeCols i j =
-        let x = normal.[*, i]
-        normal.[*, i] <- normal.[*, j]
-        normal.[*, j] <- x
+    let swapCols i j =
+        let x = array.[*, i]
+        array.[*, i] <- array.[*, j]
+        array.[*, j] <- x
 
-    let addRow x i = normal.[i, *] <- Array.map2 (<>) normal.[x, *] normal.[i, *]
-    let addCol x j = normal.[*, j] <- Array.map2 (<>) normal.[*, x] normal.[*, j]
+    let addRow x i = array.[i, *] <- Array.map2 (<>) array.[x, *] array.[i, *]
+    let addCol x j = array.[*, j] <- Array.map2 (<>) array.[*, x] array.[*, j]
 
     let rec reduce x =
-        match Helpers.array2DtryFind true normal.[x.., x..] with
+        match Helpers.array2DtryFind true array.[x.., x..] with
         | None -> ()
         | Some(i, j) ->
-            exchangeRows x (i + x)
-            exchangeRowsMatrix x (i + x)
-            exchangeCols x (j + x)
-            exchangeColsMatrix x (j + x)
-            for i in x + 1..maxRowIndex do
-                if normal.[i, x] then
+            swapRows x (i + x)
+            swapRowsMatrix x (i + x)
+            swapCols x (j + x)
+            swapColsMatrix x (j + x)
+            for i in x + 1..maxRow do
+                if array.[i, x] then
                     addRow x i
                     addRowMatrix x i
                 else ()
-            for j in x + 1..maxColIndex do
-                if normal.[x, j] then
+            for j in x + 1..maxCol do
+                if array.[x, j] then
                     addCol x j
                     addColMatrix x j
                 else ()
@@ -195,7 +224,7 @@ let rk (mat : Matrix) : Nat = numElementaryDivisors mat
 /// Nullity.
 let nul (mat : Matrix) : Nat = dimCol mat - rk mat
 
-/// Inverse. Raises exception if matrix nonsquare or singular. TODO: alternatively use Moore-Penrose inverse?
+/// Inverse.
 let inv (mat : Matrix) : Matrix =
     if nul mat <> Nat.Zero || dimRow mat <> dimCol mat then invalidOp "Cannot invert singular matrix."
     let left, right = mat |> smithFormFactors

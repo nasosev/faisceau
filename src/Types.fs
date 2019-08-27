@@ -174,6 +174,9 @@ type Chain =
 /// Type alias for cochain.
 type Cochain = Chain
 
+/// Morphism of chains. TODO
+type ChainMorphism = ChainMorphism of (Chain -> Chain)
+
 /// Simplex type.
 [<StructuredFormatDisplayAttribute("{PrettyPrinter}")>]
 type Simplex =
@@ -184,6 +187,9 @@ type Simplex =
         s
         |> Set.toList
         |> string
+
+    /// Mapper.
+    static member inline map (f : Label -> ^a) (Simplex x) : ^a Set = Set.map f x
 
     // Proper inclusion.
     static member (<.) (Simplex x, Simplex y) : bool = Set.isProperSubset x y
@@ -210,6 +216,9 @@ type Complex =
     // Inclusion.
     static member (<=.) (Complex c, Complex d) : bool = Set.isSubset c d
 
+/// Morphism of complexes.
+type ComplexMorphism = (Simplex -> Simplex) * Complex * Complex
+
 /// Sheaf.
 type Sheaf =
     | Sheaf of Complex * ((Simplex * Simplex), Matrix)Map
@@ -224,3 +233,6 @@ type Sheaf =
 
 /// Type alias for cosheaf.
 type Cosheaf = Sheaf
+
+/// Morphism of sheaves. TODO
+type SheafMophism = SheafMophism of (Sheaf -> Sheaf)
