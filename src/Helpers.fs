@@ -3,7 +3,7 @@
 module Helpers
 
 /// Map a function to a homogeneous pair.
-let pairMap (f : 'a -> 'b) (x : 'a, y : 'a) : 'b * 'b = f x, f y
+let internal pairMap (f : 'a -> 'b) (x : 'a, y : 'a) : 'b * 'b = f x, f y
 
 /// Number of distinct list lengths in a list of lists.
 let internal listNumDistinctListLengths (ll : 'a list list) : int =
@@ -37,6 +37,6 @@ let internal kSubsets (k : int) (set : 'a Set) : 'a Set Set = powerset set |> Se
 let internal symmetricDifference (xs1 : 'a Set) (xs2 : 'a Set) : 'a Set = (xs1 - xs2) + (xs2 - xs1)
 
 /// Debug print.
-let debugX x =
+let internal debugX x =
     printfn "%A" x
     x
