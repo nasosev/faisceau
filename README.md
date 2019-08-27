@@ -4,7 +4,7 @@
 
 ---
 
-## ABOUT
+## About
 
 _faisceau_ is an experimental toolkit for computing with cellular sheaves in F#, inspired by Michael Robinson's [PySheaf](https://github.com/kb1dds/pysheaf).
 
@@ -33,17 +33,11 @@ For simplicity and performance, _faisceau_ works with coefficients in the binary
 
 ---
 
-## TODO
-
-### Bugs
-
-- Chain product not correctly implemented, Chain type needs redesign.
+## Roadmap
 
 ### Features
 
 - Many more examples.
-- Cosheaves.
-- Local cohomology.
 - Six operations.
 - Integrate FSharpPlus [categorical abstractions](https://fsprojects.github.io/FSharpPlus/abstractions.html).
 
@@ -54,6 +48,6 @@ For simplicity and performance, _faisceau_ works with coefficients in the binary
 
 ---
 
-## LICENSE
+## License
 
 [MIT License](../master/LICENSE). Copyright (c) 2019 Nasos Evangelou-Oost.
