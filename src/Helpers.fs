@@ -37,6 +37,6 @@ let internal kSubsets (k : int) (set : 'a Set) : 'a Set Set = powerset set |> Se
 let internal symmetricDifference (xs1 : 'a Set) (xs2 : 'a Set) : 'a Set = (xs1 - xs2) + (xs2 - xs1)
 
 /// Debug print.
-let internal debugX x =
+let internal debugX (x : 'a) : 'a =
     printfn "%A" x
     x

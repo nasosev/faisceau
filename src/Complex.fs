@@ -109,7 +109,7 @@ let relativeCoboundaryChain (Complex c, Complex d) : Cochain =
     |> reducedCoboundaryCochain
 
 /// Coboundary cochain.
-let coboundaryChain (com : Complex) : Cochain =
+let coboundaryCochain (com : Complex) : Cochain =
     let (Complex c) = com
     c
     |> Set.remove Simplex.Empty
@@ -122,11 +122,23 @@ let betti (com : Complex) : int seq =
     |> boundaryChain
     |> Chain.betti
 
+/// k-th Betti number.
+let kBetti (k : int) (com : Complex) : int =
+    com
+    |> boundaryChain
+    |> Chain.kBetti k
+
 /// Cobetti numbers of a complex.
 let cobetti (com : Complex) : int seq =
     com
-    |> coboundaryChain
+    |> coboundaryCochain
     |> Chain.cobetti
+
+/// k-th Coetti number.
+let kCobetti (k : int) (com : Complex) : int =
+    com
+    |> coboundaryCochain
+    |> Chain.kBetti k
 
 /// Homology of a complex.
 let homology (com : Complex) : Chain =
@@ -143,7 +155,7 @@ let relativeHomology (com : Complex, subcom : Complex) : Chain =
 /// Cohomology of a complex.
 let cohomology (com : Complex) : Cochain =
     com
-    |> coboundaryChain
+    |> coboundaryCochain
     |> Chain.cohomology
 
 /// Relative cohomology of a complex
@@ -153,9 +165,10 @@ let relativeCohomology (com : Complex, subcom : Complex) : Cochain =
     |> Chain.cohomology
 
 /// Local cohomology of a complex relative to a subsimplex.
-let localCohomology (Complex com, subsim : Simplex) : Cochain =
-    let relativeCells = com - set [ subsim ] |> closure
-    (Complex com, relativeCells)
+let localCohomology (com : Complex, subsim : Simplex) : Cochain =
+    let closedCell = set [ subsim ] |> closure
+    let relativeCells = com - closedCell |> Complex
+    (com, relativeCells)
     |> relativeCoboundaryChain
     |> Chain.cohomology
 

@@ -40,6 +40,20 @@ let distinctCols (mat : Matrix) : Matrix =
     |> List.distinct
     |> List.reduce (+|)
 
+/// Trim zero rows.
+let trimRows (mat : Matrix) : Matrix =
+    mat
+    |> rows
+    |> List.filter (fun (Matrix row) -> row.[0, *] |> Array.exists ((=) true))
+    |> List.reduce (+~)
+
+/// Trim zero columns.
+let trimCols (mat : Matrix) : Matrix =
+    mat
+    |> cols
+    |> List.filter (fun (Matrix col) -> col.[*, 0] |> Array.exists ((=) true))
+    |> List.reduce (+|)
+
 /// Matrix dimension.
 let dim (mat : Matrix) : int * int = (dimRow mat, dimCol mat)
 

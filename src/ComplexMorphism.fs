@@ -2,12 +2,15 @@
 
 /// Convenience constructor to produce a simplicial map from its action on nodes.
 /// WARNING: no check is made to check if the map is really simplicial.
+/// (i.e. the image of the nodes of a simplex span a simplex).
 let make (input : (int * int) list, source : Complex, target : Complex) : ComplexMorphism =
     let nodeMap =
         input
         |> List.map (Helpers.pairMap Label)
         |> Map.ofList
-    (Simplex.map (fun v -> Map.find v nodeMap)) >> Simplex, source, target
+
+    let func = (Simplex.map (fun v -> Map.find v nodeMap)) >> Simplex
+    func, source, target
 
 // Inclusion morphism of complexes.
 let inclusion (source : Complex, target : Complex) : ComplexMorphism = id, source, target
@@ -30,14 +33,15 @@ let chainMorphism (mor : ComplexMorphism) : Chain =
 
     (Seq.map ((fun (s, t) -> Array2D.init (List.length t) (List.length s) (fun r c -> func s.[c] = t.[r])) >> Matrix) ((sourceSkeleton, targetSkeleton) ||> Seq.zip)) |> Chain
 
-// Homology morphism induced by a complex morphism.
-let homologyMorphism (mor : ComplexMorphism) : Chain =
+// Image of the cohomology morphism induced by a complex morphism.
+// TODO: change so that the image basis agrees with the target.
+let cohomologyImage (mor : ComplexMorphism) : Chain =
     let _, source, target = mor
     let (Chain chainMor) = chainMorphism mor
-    let (Chain homologySource) = Complex.homology source
-    let homologyImage = ((chainMor, homologySource) ||> Seq.zip) |> Seq.map ((fun (c, h) -> c * h))
-    let (Chain homologyTarget) = Complex.homology target
-    (homologyTarget, homologyImage)
-    ||> Seq.zip
-    |> Seq.map ((fun (h, i) -> Matrix.linSolve h i) >> Matrix.distinctCols)
+    let (Chain cohoSource) = Complex.cohomology source
+    let image = ((chainMor, cohoSource) ||> Seq.zip) |> Seq.map ((fun (c, h) -> c * h))
+    let (Chain targetBoundaryChain) = Complex.boundaryChain target |> Chain.augmentChain
+    let zipped = ((image, targetBoundaryChain |> Seq.tail) ||> Seq.zip)
+    zipped
+    |> Seq.map ((fun (h, i) -> Matrix.quotient h i) >> Matrix.trimCols)
     |> Chain

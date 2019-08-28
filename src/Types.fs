@@ -205,6 +205,10 @@ type Complex =
     static member (<.) (Complex c, Complex d) : bool = Set.isProperSubset c d
     // Inclusion.
     static member (<=.) (Complex c, Complex d) : bool = Set.isSubset c d
+    // Remove.
+    static member (-) (Complex c, Complex d) : Simplex Set = c - d
+    // Join.
+    static member (+) (Complex c, Complex d) : Simplex Set = c + d
 
 /// Morphism of complexes.
 type ComplexMorphism = (Simplex -> Simplex) * Complex * Complex

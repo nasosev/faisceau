@@ -32,14 +32,14 @@ let rk (Chain a) : int seq = a |> Seq.map Matrix.rk
 let euler (Chain a) : int = a |> Seq.fold (fun acc m -> (Matrix.dimCol m) - acc) 0
 
 /// Append zero to the end of a chain.
-let private _augmentChain (Chain a) : Chain =
+let augmentChain (Chain a) : Chain =
     Seq.append a [ Seq.last a
                    |> Matrix.dimCol
                    |> fun r -> Matrix.zero r 0 ]
     |> Chain
 
 /// Append zero to the end of a cochain.
-let private _augmentCochain (Chain a : Cochain) : Cochain =
+let augmentCochain (Chain a : Cochain) : Cochain =
     Seq.append a [ Seq.last a
                    |> Matrix.dimRow
                    |> fun c -> Matrix.zero 0 c ]
@@ -70,15 +70,21 @@ let betti (a : Cochain) : int seq =
     if length a = 0 then seq []
     else
         a
-        |> _augmentChain
+        |> augmentChain
         |> _chainBetti
+
+/// k-th Betti number.
+let kBetti (k : int) (a : Cochain) : int =
+    match (Seq.tryItem k (betti a)) with
+    | Some n -> n
+    | None -> 0
 
 /// Homology.
 let homology (a : Cochain) : Cochain =
     if length a = 0 then Chain []
     else
         a
-        |> _augmentChain
+        |> augmentChain
         |> _chainHomology
 
 /// Cobetti numbers.
@@ -86,17 +92,23 @@ let cobetti (a : Cochain) : int seq =
     if length a = 0 then seq []
     else
         a
-        |> _augmentCochain
+        |> augmentCochain
         |> rev
         |> _chainBetti
         |> Seq.rev
+
+/// k-th cobetti number.
+let kCobetti (k : int) (a : Cochain) : int =
+    match (Seq.tryItem k (cobetti a)) with
+    | Some n -> n
+    | None -> 0
 
 /// Cohomology.
 let cohomology (a : Cochain) : Cochain =
     if length a = 0 then Chain []
     else
         a
-        |> _augmentCochain
+        |> augmentCochain
         |> rev
         |> _chainHomology
         |> rev
