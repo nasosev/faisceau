@@ -11,13 +11,11 @@ let relBetti =
     >> Chain.betti
     >> Seq.toList
 
-let nat = List.map Nat
-
 type ComplexTests =
 
     static member ``relative homology of ball mod boundary is reduced homology of sphere``() : bool =
         let com = [ [ 1..8 ] ] |> Complex.make
-        (betti com = nat [ 1; 0; 0; 0; 0; 0; 0; 0 ]) && (relBetti (com, Complex.boundary com) = nat [ 0; 0; 0; 0; 0; 0; 0; 1 ])
+        (betti com = [ 1; 0; 0; 0; 0; 0; 0; 0 ]) && (relBetti (com, Complex.boundary com) = [ 0; 0; 0; 0; 0; 0; 0; 1 ])
 
     static member ``relative homology of annulus mod boundary, half``() : bool =
         let com =
@@ -34,7 +32,7 @@ type ComplexTests =
               [ 2; 4; 5 ] ]
             |> Complex.make
 
-        (betti com = nat [ 1; 1; 0 ]) && (relBetti (com, Complex.boundary com) = nat [ 0; 1; 1 ]) && (relBetti (com, half) = nat [ 0; 1; 0 ])
+        (betti com = [ 1; 1; 0 ]) && (relBetti (com, Complex.boundary com) = [ 0; 1; 1 ]) && (relBetti (com, half) = [ 0; 1; 0 ])
 
     // http://page.math.tu-berlin.de/~lutz/stellar/library_of_triangulations/poincare
     static member ``smallest known triangulation of the Poincaré homology 3-sphere with 16 vertices and 90 facets``() : bool =
@@ -130,7 +128,7 @@ type ComplexTests =
               [ 12; 13; 14; 15 ]
               [ 13; 14; 15; 16 ] ]
             |> Complex.make
-        betti com = nat [ 1; 0; 0; 1 ]
+        betti com = [ 1; 0; 0; 1 ]
 
     // http://page.math.tu-berlin.de/~lutz/stellar/library_of_triangulations/CP2
     static member ``unique vertex-minimal 9-vertex triangulation of the complex projective plane CP^2``() : bool =
@@ -172,7 +170,7 @@ type ComplexTests =
               [ 4; 5; 6; 7; 8 ]
               [ 4; 5; 7; 8; 9 ] ]
             |> Complex.make
-        betti com = nat [ 1; 0; 1; 0; 1 ]
+        betti com = [ 1; 0; 1; 0; 1 ]
 
     // http://page.math.tu-berlin.de/~lutz/stellar/library_of_triangulations/RP4
     static member ``vertex-minimal 16-vertex triangulation of the real projective 4-space RP^4``() : bool =
@@ -328,7 +326,7 @@ type ComplexTests =
               [ 8; 9; 10; 11; 14 ]
               [ 8; 9; 10; 11; 15 ] ]
             |> Complex.make
-        betti com = nat [ 1; 1; 1; 1; 1 ]
+        betti com = [ 1; 1; 1; 1; 1 ]
 
     // http://page.math.tu-berlin.de/~lutz/stellar/library_of_triangulations/K3_16
     static member ``vertex-transitive, vertex-minimal 16-vertex triangulation of the K3 surface``() : bool =
@@ -622,7 +620,7 @@ type ComplexTests =
               [ 9; 10; 11; 12; 16 ]
               [ 10; 11; 12; 15; 16 ] ]
             |> Complex.make
-        betti com = nat [ 1; 0; 22; 0; 1 ]
+        betti com = [ 1; 0; 22; 0; 1 ]
 
     // http://page.math.tu-berlin.de/~lutz/stellar/library_of_triangulations/SU2_SO3
     static member ``homogeneous space SU2/SO3``() : bool =
@@ -784,7 +782,7 @@ type ComplexTests =
               [ 5; 6; 7; 9; 10; 13 ]
               [ 6; 7; 8; 9; 10; 13 ] ]
             |> Complex.make
-        betti com = nat [ 1; 0; 1; 1; 0; 1 ]
+        betti com = [ 1; 0; 1; 1; 0; 1 ]
 
 let testAll() : unit =
     let config = { Config.Default with MaxTest = 1 }

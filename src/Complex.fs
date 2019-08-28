@@ -50,10 +50,7 @@ let dim (Complex c) : int =
     |> Seq.max
 
 /// Size of a complex.
-let size (Complex c) : Nat =
-    c
-    |> Set.count
-    |> Nat
+let size (Complex c) : int = c |> Set.count
 
 /// k-skeleton of a complex.
 let skeleton (k : int) (Complex c) : Simplex Set = c |> Set.filter (fun s -> k = Simplex.dim s)
@@ -72,14 +69,11 @@ let skelatalDecompositionList (com : Complex) : Simplex list list =
                                   |> List.sortBy fst)
 
 /// Size of the k-skeleton of a complex.
-let skeletonSize (k : int) (c : Complex) : Nat =
-    skeleton k c
-    |> Set.count
-    |> Nat
+let skeletonSize (k : int) (c : Complex) : int = skeleton k c |> Set.count
 
 /// Reduced boundary chain.
 let reducedBoundaryChain (com : Complex) : Chain =
-    if size com = Nat.Zero then Chain []
+    if size com = 0 then Chain []
     else
         let skeleton = com |> skelatalDecompositionList
         [ 0..skeleton.Length - 2 ]
@@ -123,13 +117,13 @@ let coboundaryChain (com : Complex) : Cochain =
     |> reducedCoboundaryCochain
 
 /// Betti numbers of a complex.
-let betti (com : Complex) : Nat seq =
+let betti (com : Complex) : int seq =
     com
     |> boundaryChain
     |> Chain.betti
 
 /// Cobetti numbers of a complex.
-let cobetti (com : Complex) : Nat seq =
+let cobetti (com : Complex) : int seq =
     com
     |> coboundaryChain
     |> Chain.cobetti

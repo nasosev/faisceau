@@ -4,33 +4,30 @@ module RandomTests
 
 open FsCheck
 
-// To convert FsCheck's NonNegativeInto to our Nat.
-let nnIntToNat = int >> Nat
-
 type MatrixTests =
     static member ``transpose is idempotent`` (mat : Matrix) : bool = -(-mat) = mat
 
     static member ``sum is commutative`` (n' : NonNegativeInt) (m' : NonNegativeInt) : bool =
-        let n, m = nnIntToNat n', nnIntToNat m'
+        let n, m = int n', int m'
         let mat1 = Matrix.random n m
         let mat2 = Matrix.random n m
         mat1 + mat2 = mat2 + mat1
 
     static member ``product is associative`` (n' : NonNegativeInt) (m' : NonNegativeInt) (k' : NonNegativeInt) (l' : NonNegativeInt) : bool =
-        let n, m, k, l = nnIntToNat n', nnIntToNat m', nnIntToNat k', nnIntToNat l'
+        let n, m, k, l = int n', int m', int k', int l'
         let mat1 = Matrix.random n m
         let mat2 = Matrix.random m k
         let mat3 = Matrix.random k l
         (mat1 * mat2) * mat3 = mat1 * (mat2 * mat3)
 
     static member ``trace is cyclic`` (n' : NonNegativeInt) : bool =
-        let n = nnIntToNat n'
+        let n = int n'
         let mat1 = Matrix.random n n
         let mat2 = Matrix.random n n
         Matrix.tr (mat1 * mat2) = Matrix.tr (mat2 * mat1)
 
     static member ``trace commutes with tensor product`` (n' : NonNegativeInt) : bool =
-        let n = nnIntToNat n'
+        let n = int n'
         let mat1 = Matrix.random n n
         let mat2 = Matrix.random n n
         Matrix.tr (mat1 *! mat2) = (Matrix.tr (mat1) && Matrix.tr (mat2))
@@ -41,19 +38,19 @@ type MatrixTests =
         numberForm && spaceForm
 
     static member ``determinant of product is product of determinants`` (n' : NonNegativeInt) : bool =
-        let n = nnIntToNat n'
+        let n = int n'
         let mat1 = Matrix.random n n
         let mat2 = Matrix.random n n
         Matrix.det (mat1 * mat2) = (Matrix.det mat1 && Matrix.det mat2)
 
     static member ``determinant of tensor product is product of determinants`` (n' : NonNegativeInt) (m' : NonNegativeInt) : bool =
-        let n, m = nnIntToNat n', nnIntToNat m'
+        let n, m = int n', int m'
         let mat1 = Matrix.random n n
         let mat2 = Matrix.random m m
         Matrix.det (mat1 *! mat2) = (Matrix.det mat1 && Matrix.det mat2)
 
     static member ``product with inverse is identity`` (n' : NonNegativeInt) : Property =
-        let n = int n' |> Nat
+        let n = int n'
         let mat = Matrix.random n n
         Matrix.det mat ==> lazy
             let id = Matrix.identity n
@@ -112,7 +109,7 @@ type ComplexTests =
                 |> Chain.betti
                 |> List.ofSeq
 
-            (List.head betti = Nat.One + List.head reducedBetti) && (List.tail betti = List.tail reducedBetti)
+            (List.head betti = 1 + List.head reducedBetti) && (List.tail betti = List.tail reducedBetti)
 
     static member ``boundary is nilpotent`` (xs : Set<Simplex>) =
         Complex.Empty = (xs

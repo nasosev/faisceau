@@ -15,16 +15,16 @@ let make (input : int list list) : Matrix =
 let transpose (mat : Matrix) : Matrix = -mat
 
 /// Row dimension.
-let dimRow (Matrix m) : Nat = Array2D.length1 m |> Nat
+let dimRow (Matrix m) : int = Array2D.length1 m
 
 /// Column dimension.
-let dimCol (Matrix m) : Nat = Array2D.length2 m |> Nat
+let dimCol (Matrix m) : int = Array2D.length2 m
 
 /// Row list.
-let rows (mat : Matrix) : List<Matrix> = [ 0..(dimRow mat |> int) - 1 ] |> List.map (fun i -> mat.[Nat i, *])
+let rows (mat : Matrix) : List<Matrix> = [ 0..(dimRow mat) - 1 ] |> List.map (fun i -> mat.[i, *])
 
 /// Column list.
-let cols (mat : Matrix) : List<Matrix> = [ 0..(dimCol mat |> int) - 1 ] |> List.map (fun i -> mat.[*, Nat i])
+let cols (mat : Matrix) : List<Matrix> = [ 0..(dimCol mat) - 1 ] |> List.map (fun i -> mat.[*, i])
 
 /// Delete duplicate rows.
 let distinctRows (mat : Matrix) : Matrix =
@@ -41,32 +41,32 @@ let distinctCols (mat : Matrix) : Matrix =
     |> List.reduce (+|)
 
 /// Matrix dimension.
-let dim (mat : Matrix) : Nat * Nat = (dimRow mat, dimCol mat)
+let dim (mat : Matrix) : int * int = (dimRow mat, dimCol mat)
 
 // Creates matrix with ones on diagonal of dimension (r,c).
-let diagonal (Nat r) (Nat c) : Matrix = Array2D.init r c (=) |> Matrix
+let diagonal (r : int) (c : int) : Matrix = Array2D.init r c (=) |> Matrix
 // Creates identity matrix of dimension n.
-let identity (n : Nat) : Matrix = diagonal n n
+let identity (n : int) : Matrix = diagonal n n
 
 /// Creates a zero matrix of dimension (r,c).
-let zero (Nat r) (Nat c) : Matrix = Array2D.create r c false |> Matrix
+let zero (r : int) (c : int) : Matrix = Array2D.create r c false |> Matrix
 
 // Creates a unit matrix of dimension (r,c).
-let one (Nat r) (Nat c) : Matrix = Array2D.create r c true |> Matrix
+let one (r : int) (c : int) : Matrix = Array2D.create r c true |> Matrix
 
 // Creates a random matrix of dimension (r,c).
-let random (Nat r) (Nat c) : Matrix =
+let random (r : int) (c : int) : Matrix =
     let rng = System.Random()
     Array2D.init r c (fun _ _ -> (rng.Next()) % 2 = 0) |> Matrix
 
 /// Removes a row from a matrix.
-let removeRow (mat : Matrix) (r : Nat) : Matrix = mat.[..r - Nat.One, *] +~ mat.[r + Nat.One.., *]
+let removeRow (mat : Matrix) (r : int) : Matrix = mat.[..r - 1, *] +~ mat.[r + 1.., *]
 
 /// Removes a column from a matrix.
-let removeCol (mat : Matrix) (c : Nat) : Matrix = mat.[*, ..c - Nat.One] +| mat.[*, c + Nat.One..]
+let removeCol (mat : Matrix) (c : int) : Matrix = mat.[*, ..c - 1] +| mat.[*, c + 1..]
 
 /// Gives the Smith normal form of a matrix.
-let rowReduce (dimCol : Nat) (Matrix m) : Matrix =
+let rowReduce (dimCol : int) (Matrix m) : Matrix =
     let array = Array2D.copy m
     let maxRow = -1 + Array2D.length1 array
     let maxCol = -1 + (int dimCol)
@@ -107,7 +107,7 @@ let smithNormalForm (mat : Matrix) : Matrix = rowReduce (dimCol mat) mat
 let linSolve (matA : Matrix) (matB : Matrix) : Matrix =
     let dimColA = dimCol matA
     let rowReduce = rowReduce dimColA (matA +| matB)
-    rowReduce.[..dimColA - Nat.One, dimColA..]
+    rowReduce.[..dimColA - 1, dimColA..]
 
 /// Gives the Smith normal form factors `(left,right)` of the input matrix `input`, where `normal = left * input * right`.
 let smithFormFactors (Matrix m) : Matrix * Matrix =
@@ -116,8 +116,8 @@ let smithFormFactors (Matrix m) : Matrix * Matrix =
     let maxRow = -1 + rowDim
     let maxCol = -1 + colDim
     let array = Array2D.copy m
-    let mutable left = identity (Nat rowDim)
-    let mutable right = identity (Nat colDim)
+    let mutable left = identity rowDim
+    let mutable right = identity colDim
 
     let swapRowsMatrix i j =
         let init r c =
@@ -197,36 +197,35 @@ let smithFormFactors (Matrix m) : Matrix * Matrix =
     left, right
 
 /// Gives the number of elementary divisors of a matrix.
-let numElementaryDivisors (mat : Matrix) : Nat =
+let numElementaryDivisors (mat : Matrix) : int =
     let normal = mat |> smithNormalForm
     let diagLength = min (dimRow normal) (dimCol normal)
-    if diagLength = Nat.Zero then Nat.Zero
+    if diagLength = 0 then 0
     else
-        [ Nat.Zero..diagLength - Nat.One ]
+        [ 0..diagLength - 1 ]
         |> List.map (fun i -> normal.[i, i])
         |> List.filter ((=) true)
         |> List.length
-        |> Nat
 
 /// Trace.
 let tr (mat : Matrix) : bool =
     if dimRow mat <> dimCol mat then invalidOp "Cannot take trace of nonsquare matrix."
     let n = dimRow mat
-    if n = Nat.Zero then false
+    if n = 0 then false
     else
-        [ Nat.Zero..n - Nat.One ]
+        [ 0..n - 1 ]
         |> List.map (fun i -> mat.[i, i])
         |> List.reduce (<>)
 
 /// Rank.
-let rk (mat : Matrix) : Nat = numElementaryDivisors mat
+let rk (mat : Matrix) : int = numElementaryDivisors mat
 
 /// Nullity.
-let nul (mat : Matrix) : Nat = dimCol mat - rk mat
+let nul (mat : Matrix) : int = dimCol mat - rk mat
 
 /// Inverse.
 let inv (mat : Matrix) : Matrix =
-    if nul mat <> Nat.Zero || dimRow mat <> dimCol mat then invalidOp "Cannot invert singular matrix."
+    if nul mat <> 0 || dimRow mat <> dimCol mat then invalidOp "Cannot invert singular matrix."
     let left, right = mat |> smithFormFactors
     right * left
 
@@ -235,9 +234,9 @@ let det (mat : Matrix) : bool =
     if dimRow mat <> dimCol mat then invalidOp "Cannot take determinant of nonsquare matrix."
     let normal = mat |> smithNormalForm
     let n = dimRow normal
-    if n = Nat.Zero then false
+    if n = 0 then false
     else
-        [ Nat.Zero..n - Nat.One ]
+        [ 0..n - 1 ]
         |> List.map (fun i -> normal.[i, i])
         |> List.reduce (&&)
 
@@ -251,10 +250,10 @@ let ker (mat : Matrix) : Matrix =
 let im (mat : Matrix) : Matrix =
     let left, _ = smithFormFactors mat
     let i = numElementaryDivisors mat
-    if i = Nat.Zero then zero (dimRow mat) Nat.Zero
+    if i = 0 then zero (dimRow mat) 0
     else
         let invLeft = inv left
-        invLeft.[*, ..i - Nat.One]
+        invLeft.[*, ..i - 1]
 
 /// Determines whether a vector is in the span of a matrix.
 let inSpan (mat : Matrix) (vec : Matrix) : bool = rk mat = rk (mat +| vec)
@@ -262,10 +261,10 @@ let inSpan (mat : Matrix) (vec : Matrix) : bool = rk mat = rk (mat +| vec)
 /// Quotient vector space.
 let quotient (space : Matrix) (subspace : Matrix) : Matrix =
     let d = dimCol subspace
-    if d = Nat.Zero then space
+    if d = 0 then space
     else
         let mutable extendedSubspace = subspace
-        for i in Nat.Zero..(dimCol space) - Nat.One do
+        for i in 0..(dimCol space) - 1 do
             if not (inSpan extendedSubspace space.[*, i]) then extendedSubspace <- extendedSubspace +| space.[*, i]
         extendedSubspace.[*, d..]
 
@@ -280,12 +279,12 @@ let prettyPrint (brackets : string * string) (mat : Matrix) : string =
 
     let n, m = dimRow mat, dimCol mat
     let mutable s = "\n" + leftBracket + "\n"
-    for i in Nat.Zero..n - Nat.One do
-        for j in Nat.Zero..m - Nat.One do
+    for i in 0..n - 1 do
+        for j in 0..m - 1 do
             s <- s + match (i, j) with
-                     | (x, y) when x = n - Nat.One && y = m - Nat.One -> boolToStr mat.[i, j] + rightBracket + "\n"
-                     | (_, x) when x = Nat.Zero -> leftBracket + boolToStr mat.[i, j] + ", "
-                     | (_, x) when x = m - Nat.One -> boolToStr mat.[i, j] + rightBracket + ",\n"
+                     | (x, y) when x = n - 1 && y = m - 1 -> boolToStr mat.[i, j] + rightBracket + "\n"
+                     | (_, x) when x = 0 -> leftBracket + boolToStr mat.[i, j] + ", "
+                     | (_, x) when x = m - 1 -> boolToStr mat.[i, j] + rightBracket + ",\n"
                      | _ -> boolToStr mat.[i, j] + ", "
     s + rightBracket + "\n"
 

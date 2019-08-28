@@ -2,16 +2,6 @@
 [<AutoOpen>]
 module Types
 
-/// Nonnegative integer type.
-type Nat =
-    | Nat of int
-    static member Zero = Nat 0
-    static member One = Nat 1
-    static member (+) (Nat n, Nat m) : Nat = abs n + abs m |> Nat
-    static member (-) (Nat n, Nat m) : Nat = max 0 (abs n - abs m) |> Nat
-    static member (*) (Nat n, Nat m) : Nat = abs n * abs m |> Nat
-    static member op_Explicit (Nat n) : int = n
-
 /// Label type of nodes.
 [<StructuredFormatDisplayAttribute("{PrettyPrinter}")>]
 type Label =
@@ -37,35 +27,35 @@ type Matrix =
         |> sprintf "%A"
 
     /// Gets item as a bool.
-    member __.Item(r : Nat, c : Nat) : bool =
+    member __.Item(r : int, c : int) : bool =
         let (Matrix m) = __
         m.[int r, int c]
 
     /// Gets row slice as a row vector.
-    member __.GetSlice(r : Nat, c0Opt : Nat option, cnOpt : Nat option) : Matrix =
+    member __.GetSlice(r : int, c0Opt : int option, cnOpt : int option) : Matrix =
         let (Matrix m) = __
         let r' = int r
-        let c0 = defaultArg c0Opt Nat.Zero |> int
-        let cn = defaultArg cnOpt (Nat(Array2D.length2 m - 1)) |> int
+        let c0 = defaultArg c0Opt 0
+        let cn = defaultArg cnOpt (Array2D.length2 m - 1)
         let col = m.[r', c0..cn]
         Array2D.init 1 (Array.length col) (fun _ c -> col.[c]) |> Matrix
 
     /// Gets column slice as a column vector.
-    member __.GetSlice(r0Opt : Nat option, rnOpt : Nat option, c : Nat) : Matrix =
+    member __.GetSlice(r0Opt : int option, rnOpt : int option, c : int) : Matrix =
         let (Matrix m) = __
         let c' = int c
-        let r0 = defaultArg r0Opt Nat.Zero |> int
-        let rn = defaultArg rnOpt (Nat(Array2D.length1 m - 1)) |> int
+        let r0 = defaultArg r0Opt 0
+        let rn = defaultArg rnOpt (Array2D.length1 m - 1)
         let row = m.[r0..rn, c']
         Array2D.init (Array.length row) 1 (fun r _ -> row.[r]) |> Matrix
 
     /// Gets block slice as a matrix.
-    member __.GetSlice(r0Opt : Nat option, rnOpt : Nat option, c0Opt : Nat option, cnOpt : Nat option) : Matrix =
+    member __.GetSlice(r0Opt : int option, rnOpt : int option, c0Opt : int option, cnOpt : int option) : Matrix =
         let (Matrix m) = __
-        let r0 = defaultArg r0Opt Nat.Zero |> int
-        let rn = defaultArg rnOpt (Nat(Array2D.length1 m - 1)) |> int
-        let c0 = defaultArg c0Opt Nat.Zero |> int
-        let cn = defaultArg cnOpt (Nat(Array2D.length2 m - 1)) |> int
+        let r0 = defaultArg r0Opt 0
+        let rn = defaultArg rnOpt (Array2D.length1 m - 1)
+        let c0 = defaultArg c0Opt 0
+        let cn = defaultArg cnOpt (Array2D.length2 m - 1)
         m.[r0..rn, c0..cn] |> Matrix
 
     /// Transpose.
@@ -148,7 +138,7 @@ type Chain =
         |> String.concat "\n\n"
 
     /// Gets item.
-    member __.Item(i : Nat) : Matrix =
+    member __.Item(i : int) : Matrix =
         let (Chain m) = __
         (List.ofSeq m).[int i]
 

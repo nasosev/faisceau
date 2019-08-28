@@ -14,35 +14,35 @@ let make (input : Matrix seq) : Chain =
     Chain input
 
 /// Length of a chain.
-let length (Chain a) : Nat = Seq.length a |> Nat
+let length (Chain a) : int = Seq.length a
 
 /// Reverse a chain.
 let rev (Chain a) : Chain = Seq.rev a |> Chain
 
 /// Dimensions of chain.
-let dim (Chain a) : Nat seq = a |> Seq.map Matrix.dimCol
+let dim (Chain a) : int seq = a |> Seq.map Matrix.dimCol
 
 /// Row and columensions of chain.
-let dims (Chain a) : (Nat * Nat) seq = a |> Seq.map Matrix.dim
+let dims (Chain a) : (int * int) seq = a |> Seq.map Matrix.dim
 
 /// Rank sequence of chain.
-let rk (Chain a) : Nat seq = a |> Seq.map Matrix.rk
+let rk (Chain a) : int seq = a |> Seq.map Matrix.rk
 
 /// Euler characteristic.
-let euler (Chain a) : int = a |> Seq.fold (fun acc m -> (Matrix.dimCol m |> int) - acc) 0
+let euler (Chain a) : int = a |> Seq.fold (fun acc m -> (Matrix.dimCol m) - acc) 0
 
 /// Append zero to the end of a chain.
 let private _augmentChain (Chain a) : Chain =
     Seq.append a [ Seq.last a
                    |> Matrix.dimCol
-                   |> fun r -> Matrix.zero r Nat.Zero ]
+                   |> fun r -> Matrix.zero r 0 ]
     |> Chain
 
 /// Append zero to the end of a cochain.
 let private _augmentCochain (Chain a : Cochain) : Cochain =
     Seq.append a [ Seq.last a
                    |> Matrix.dimRow
-                   |> fun c -> Matrix.zero Nat.Zero c ]
+                   |> fun c -> Matrix.zero 0 c ]
     |> Chain
 
 /// Chain homology.
@@ -56,7 +56,7 @@ let private _chainHomology (Chain a) : Chain =
     Seq.map2 Matrix.quotient k i |> Chain
 
 /// Chain betti.
-let private _chainBetti (Chain a) : Nat seq =
+let private _chainBetti (Chain a) : int seq =
     let k = a |> Seq.map Matrix.nul
 
     let i =
@@ -66,8 +66,8 @@ let private _chainBetti (Chain a) : Nat seq =
     Seq.map2 (-) k i
 
 /// Betti numbers.
-let betti (a : Cochain) : Nat seq =
-    if length a = Nat.Zero then seq []
+let betti (a : Cochain) : int seq =
+    if length a = 0 then seq []
     else
         a
         |> _augmentChain
@@ -75,15 +75,15 @@ let betti (a : Cochain) : Nat seq =
 
 /// Homology.
 let homology (a : Cochain) : Cochain =
-    if length a = Nat.Zero then Chain []
+    if length a = 0 then Chain []
     else
         a
         |> _augmentChain
         |> _chainHomology
 
 /// Cobetti numbers.
-let cobetti (a : Cochain) : Nat seq =
-    if length a = Nat.Zero then seq []
+let cobetti (a : Cochain) : int seq =
+    if length a = 0 then seq []
     else
         a
         |> _augmentCochain
@@ -93,7 +93,7 @@ let cobetti (a : Cochain) : Nat seq =
 
 /// Cohomology.
 let cohomology (a : Cochain) : Cochain =
-    if length a = Nat.Zero then Chain []
+    if length a = 0 then Chain []
     else
         a
         |> _augmentCochain

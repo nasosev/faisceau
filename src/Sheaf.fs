@@ -24,20 +24,20 @@ let make (input : Complex * (int list * int list * Matrix) list) : Sheaf =
 let dim (Sheaf(com, _)) : int = Complex.dim com
 
 /// Size.
-let size (Sheaf(com, maps)) : Nat * Nat = Complex.size com, Map.count maps |> Nat
+let size (Sheaf(com, maps)) : int * int = Complex.size com, Map.count maps
 
 /// Coboundary matrix of a sheaf.
 let coboundaryMatrix (rows : Simplex list) (cols : Simplex list) (maps : ((Simplex * Simplex), Matrix)Map) : Matrix =
     match (List.length rows, List.length cols) with
-    | 0, 0 -> Matrix.zero Nat.Zero Nat.Zero
+    | 0, 0 -> Matrix.zero 0 0
     | _, 0 ->
         rows
-        |> List.fold (fun acc sim -> acc + (Matrix.dimRow maps.[sim, sim])) Nat.Zero
-        |> fun n -> Matrix.zero n Nat.Zero
+        |> List.fold (fun acc sim -> acc + (Matrix.dimRow maps.[sim, sim])) 0
+        |> fun n -> Matrix.zero n 0
     | 0, _ ->
         cols
-        |> List.fold (fun acc sim -> acc + (Matrix.dimCol maps.[sim, sim])) Nat.Zero
-        |> Matrix.zero Nat.Zero
+        |> List.fold (fun acc sim -> acc + (Matrix.dimCol maps.[sim, sim])) 0
+        |> Matrix.zero 0
     | _ ->
         let rowArray = rows |> List.toArray
         let colArray = cols |> List.toArray
@@ -56,7 +56,7 @@ let coboundaryMatrix (rows : Simplex list) (cols : Simplex list) (maps : ((Simpl
 
 /// Reduced coboundary chain of a sheaf.
 let reducedCoboundaryCochain (Sheaf(com, maps)) : Cochain =
-    if Complex.size com = Nat.Zero then Chain []
+    if Complex.size com = 0 then Chain []
     else
         let skeleton = com |> Complex.skelatalDecompositionList
         [ 0..skeleton.Length - 2 ]
@@ -73,7 +73,7 @@ let coboundaryCochain (Sheaf(com, maps)) : Cochain =
     |> fun reducedCom -> reducedCoboundaryCochain (Sheaf(reducedCom, maps))
 
 /// Cobetti numbers of a sheaf.
-let cobetti (sheaf : Sheaf) : Nat seq =
+let cobetti (sheaf : Sheaf) : int seq =
     sheaf
     |> coboundaryCochain
     |> Chain.cobetti
@@ -96,7 +96,7 @@ let constant (com : Complex) : Sheaf =
 
     let selfMaps =
         c
-        |> Set.map (fun x -> (x, x), Matrix.identity Nat.One)
+        |> Set.map (fun x -> (x, x), Matrix.identity 1)
         |> Set.toList
 
     let otherMaps =
@@ -105,7 +105,7 @@ let constant (com : Complex) : Sheaf =
                 let d = 1 + Simplex.dim x
                 let higher = c |> Set.filter (fun y -> Simplex.dim y = d)
                 for y in higher do
-                    if x <=. y then yield (y, x), Matrix.identity Nat.One
+                    if x <=. y then yield (y, x), Matrix.identity 1
         }
         |> Seq.toList
 
