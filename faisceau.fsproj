@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <PropertyGroup>
     <OtherFlags>$(OtherFlags) --warnon:1182 --warn:5 --nowarn:62 </OtherFlags>
@@ -20,9 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FsCheck" Version="2.14.0" />
-    <PackageReference Include="XPlot.Plotly" Version="2.0.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="4.7.0" />
+    <PackageReference Include="XPlot.Plotly" Version="3.0.1" />
   </ItemGroup>
 </Project>

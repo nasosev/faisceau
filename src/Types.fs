@@ -29,12 +29,12 @@ type Matrix =
     /// Gets item as a bool.
     member __.Item(r : int, c : int) : bool =
         let (Matrix m) = __
-        m.[int r, int c]
+        m.[r, c]
 
     /// Gets row slice as a row vector.
     member __.GetSlice(r : int, c0Opt : int option, cnOpt : int option) : Matrix =
         let (Matrix m) = __
-        let r' = int r
+        let r' = r
         let c0 = defaultArg c0Opt 0
         let cn = defaultArg cnOpt (Array2D.length2 m - 1)
         let col = m.[r', c0..cn]
@@ -140,7 +140,7 @@ type Chain =
     /// Gets item.
     member __.Item(i : int) : Matrix =
         let (Chain m) = __
-        (List.ofSeq m).[int i]
+        (List.ofSeq m).[i]
 
     /// Mapper.
     static member inline map (f : Matrix -> ^a) (Chain h) : ^a seq = Seq.map f h

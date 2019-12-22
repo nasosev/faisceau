@@ -95,14 +95,14 @@ let boundaryChain (com : Complex) : Chain =
     |> Complex
     |> reducedBoundaryChain
 
-/// Reduced coboundary chain.
+/// Reduced coboundary cochain.
 let reducedCoboundaryCochain (com : Complex) : Cochain =
     com
     |> reducedBoundaryChain
     |> Chain.map Matrix.transpose
     |> Chain
 
-/// Relative reduced coboundary chain.
+/// Relative reduced coboundary cochain.
 let relativeCoboundaryChain (Complex c, Complex d) : Cochain =
     c - d
     |> Complex

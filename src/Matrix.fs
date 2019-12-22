@@ -83,7 +83,7 @@ let removeCol (mat : Matrix) (c : int) : Matrix = mat.[*, ..c - 1] +| mat.[*, c 
 let rowReduce (dimCol : int) (Matrix m) : Matrix =
     let array = Array2D.copy m
     let maxRow = -1 + Array2D.length1 array
-    let maxCol = -1 + (int dimCol)
+    let maxCol = -1 + dimCol
 
     let swapRows i j =
         let x = array.[i, *]
