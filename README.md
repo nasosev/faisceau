@@ -3,6 +3,9 @@
 **Cellular sheaves for F#.**
 
 ---
+## Warning
+
+This project is currently in very early development and should not be used.
 
 ## About
 
