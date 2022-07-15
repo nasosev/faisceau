@@ -186,7 +186,7 @@ type Simplex =
     // Inclusion.
     static member (<=.) (Simplex x, Simplex y) : bool = Set.isSubset x y
 
-/// Simplicial complex type. Must satisfy complex relation (i.e. equal its powerset).
+/// Simplicial complex type.
 [<StructuredFormatDisplayAttribute("{PrettyPrinter}")>]
 type Complex =
     | Complex of Simplex Set
